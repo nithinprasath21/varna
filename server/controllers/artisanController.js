@@ -12,11 +12,116 @@ const getDashboardStats = async (req, res) => {
 
         const productsRes = await db.query('SELECT COUNT(*) FROM products WHERE artisan_id = $1', [artisanId]);
 
-        // Placeholder for sales stats - normally would query an 'orders' table
+        // 1. Money Flow (Sales Trends - Last 30 Days)
+        const salesTrendRes = await db.query(`
+            SELECT 
+                DATE(o.created_at) as date,
+                SUM(oi.quantity * oi.price_at_purchase) as revenue
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE p.artisan_id = $1 AND o.status IN ('PAID', 'SHIPPED', 'DELIVERED')
+            GROUP BY DATE(o.created_at)
+            ORDER BY DATE(o.created_at) ASC
+        `, [artisanId]);
+
+        // 2. Best Sellers (Most Quantity Sold)
+        const bestSellersRes = await db.query(`
+            SELECT 
+                p.title,
+                p.id,
+                pm.media_url as image_url,
+                SUM(oi.quantity) as total_sold
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            LEFT JOIN product_media pm ON p.id = pm.product_id AND pm.is_primary = TRUE
+            WHERE p.artisan_id = $1
+            GROUP BY p.id, p.title, pm.media_url
+            ORDER BY total_sold DESC
+            LIMIT 5
+        `, [artisanId]);
+
+        // 3. Stock Health (Current Quantity vs Popularity)
+        const stockHealthRes = await db.query(`
+            SELECT 
+                title,
+                stock_qty,
+                CASE 
+                    WHEN stock_qty <= 5 THEN 'LOW'
+                    WHEN stock_qty <= 15 THEN 'MEDIUM'
+                    ELSE 'HIGH'
+                END as health_status
+            FROM products 
+            WHERE artisan_id = $1
+            ORDER BY stock_qty ASC
+        `, [artisanId]);
+
+        // 4. Market Reach (Geography - Orders by City)
+        const marketReachRes = await db.query(`
+            SELECT 
+                (shipping_address->>'city') as city,
+                COUNT(*) as order_count
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE p.artisan_id = $1
+            GROUP BY city
+            ORDER BY order_count DESC
+        `, [artisanId]);
+
+        // 5. Time Usage / Profitability (Revenue by Category)
+        const categoryProfitRes = await db.query(`
+            SELECT 
+                p.category,
+                SUM(oi.quantity * oi.price_at_purchase) as total_revenue
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            WHERE p.artisan_id = $1
+            GROUP BY p.category
+            ORDER BY total_revenue DESC
+        `, [artisanId]);
+
+        // Total Revenue Calculation
+        const revenueRes = await db.query(`
+            SELECT COALESCE(SUM(oi.quantity * oi.price_at_purchase), 0) as total_revenue
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE p.artisan_id = $1 AND o.status IN ('PAID', 'SHIPPED', 'DELIVERED')
+        `, [artisanId]);
+
+        // Recent Orders with Fulfillment Data
+        const recentOrdersRes = await db.query(`
+            SELECT 
+                o.id, 
+                o.created_at, 
+                o.status,
+                o.shipping_address,
+                o.tracking_number,
+                o.shipping_proof_url,
+                p.title as product_title,
+                oi.quantity,
+                oi.price_at_purchase as price,
+                (oi.quantity * oi.price_at_purchase) as subtotal
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE p.artisan_id = $1
+            ORDER BY o.created_at DESC
+            LIMIT 10
+        `, [artisanId]);
+
         res.json({
             productCount: parseInt(productsRes.rows[0].count),
-            totalSales: 0,
-            recentOrders: []
+            totalSales: parseFloat(revenueRes.rows[0].total_revenue),
+            recentOrders: recentOrdersRes.rows,
+            charts: {
+                moneyFlow: salesTrendRes.rows,
+                bestSellers: bestSellersRes.rows,
+                stockHealth: stockHealthRes.rows,
+                marketReach: marketReachRes.rows,
+                categoryProfit: categoryProfitRes.rows
+            }
         });
     } catch (err) {
         console.error(err);
@@ -28,6 +133,10 @@ const addProduct = async (req, res) => {
     try {
         const { title, description, base_price, sale_price, stock_qty, category, is_premium, image_url } = req.body;
         const userId = req.userId;
+
+        if (sale_price && Number(sale_price) > Number(base_price)) {
+            return res.status(400).json({ message: 'Sale price cannot be greater than base price (MRP)' });
+        }
 
         const artisanRes = await db.query('SELECT id FROM artisans WHERE user_id = $1', [userId]);
         let artisanId;
@@ -91,6 +200,10 @@ const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
         const { title, description, base_price, sale_price, stock_qty, category, is_premium, image_url } = req.body;
+
+        if (sale_price && Number(sale_price) > Number(base_price)) {
+            return res.status(400).json({ message: 'Sale price cannot be greater than base price (MRP)' });
+        }
 
         const updatedProduct = await db.query(
             `UPDATE products 
