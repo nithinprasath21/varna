@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 
 export default function Register() {
     const [formData, setFormData] = useState({
+        full_name: '',
         email: '',
         password: '',
         phone_number: '',
@@ -19,7 +20,7 @@ export default function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const success = await register(formData.email, formData.password, formData.role, formData.phone_number);
+        const success = await register(formData.email, formData.password, formData.role, formData.phone_number, formData.full_name);
         if (success) {
             navigate('/auth/login');
         }
@@ -34,6 +35,18 @@ export default function Register() {
             >
                 <h2 className="text-3xl font-display font-bold text-secondary mb-6 text-center">Join VARNA</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input
+                            type="text"
+                            name="full_name"
+                            value={formData.full_name}
+                            onChange={handleChange}
+                            placeholder="Your Name"
+                            className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 p-2 border"
+                            required
+                        />
+                    </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Email</label>
                         <input

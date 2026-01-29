@@ -70,4 +70,40 @@ const getOrderHistory = async (req, res) => {
     }
 };
 
-module.exports = { placeOrder, getOrderHistory };
+const updateOrderStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        const result = await db.query(
+            'UPDATE orders SET status = $1 WHERE id = $2 RETURNING *',
+            [status, id]
+        );
+
+        if (result.rows.length === 0) return res.status(404).json({ message: 'Order not found' });
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Failed to update order status' });
+    }
+};
+
+const updateFulfillment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { tracking_number, shipping_proof_url, status } = req.body;
+
+        const result = await db.query(
+            'UPDATE orders SET tracking_number = $1, shipping_proof_url = $2, status = $3 WHERE id = $4 RETURNING *',
+            [tracking_number, shipping_proof_url, status || 'SHIPPED', id]
+        );
+
+        if (result.rows.length === 0) return res.status(404).json({ message: 'Order not found' });
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Failed to update fulfillment' });
+    }
+};
+
+module.exports = { placeOrder, getOrderHistory, updateOrderStatus, updateFulfillment };

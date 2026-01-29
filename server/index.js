@@ -16,9 +16,25 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const app = express();
 
 // Middleware
-app.use(express.json());
 app.use(cors());
-app.use(helmet());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            imgSrc: ["'self'", "data:", "https:", "http:"],
+            connectSrc: ["'self'"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"],
+        },
+    },
+}));
 app.use(morgan('dev'));
 
 // Routes
