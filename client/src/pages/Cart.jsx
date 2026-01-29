@@ -104,17 +104,30 @@ export default function Cart() {
         return true;
     };
 
-    const confirmOrder = () => {
+    const confirmOrder = async () => {
         if (!selectedAddress) return toast.error('Please select a delivery address');
         if (!validatePayment()) return;
 
-        toast.success(`Processing Payment via ${paymentMode}...`);
+        try {
+            const token = localStorage.getItem('token');
+            const finalAmount = Math.max(0, sellingPriceTotal - discountAmount);
 
-        setTimeout(() => {
+            await axios.post('http://localhost:5000/orders', {
+                items: cartItems,
+                address_id: selectedAddress,
+                payment_mode: paymentMode,
+                total_amount: finalAmount
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
             toast.success(`Order Placed Successfully!`);
             clearCart();
-            navigate('/');
-        }, 2000);
+            navigate('/orders');
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to place order');
+        }
     };
 
     const sellingPriceTotal = cartItems.reduce((acc, item) => acc + ((item.sale_price || item.base_price) * item.qty), 0);

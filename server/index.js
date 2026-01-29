@@ -8,8 +8,10 @@ const authRoutes = require('./routes/authRoutes');
 const artisanRoutes = require('./routes/artisanRoutes');
 const ngoRoutes = require('./routes/ngoRoutes');
 const shopRoutes = require('./routes/shopRoutes');
-const aiRoutes = require('./routes/aiRoutes');
+
 const blockchainRoutes = require('./routes/blockchainRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 
@@ -24,8 +26,10 @@ app.use('/auth', authRoutes);
 app.use('/artisan', artisanRoutes);
 app.use('/ngo', ngoRoutes);
 app.use('/shop', shopRoutes);
-app.use('/ai', aiRoutes);
+
 app.use('/blockchain', blockchainRoutes);
+app.use('/orders', orderRoutes);
+app.use('/reviews', reviewRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to VARNA API' });

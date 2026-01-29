@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { ChevronRight } from 'lucide-react'; // Assuming lucide-react is installed, else use text
 
 export default function Home() {
     const [products, setProducts] = useState([]);
@@ -14,7 +14,6 @@ export default function Home() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                // Fetching all (in real app, use specific endpoints for efficiency)
                 const res = await axios.get('http://localhost:5000/shop/products');
                 setProducts(res.data);
             } catch (err) {
@@ -24,158 +23,119 @@ export default function Home() {
         fetchProducts();
     }, []);
 
-    const handleAddToCart = (product) => {
-        if (!user) {
-            navigate('/auth/login', { state: { from: '/' } });
-            return;
-        }
-        addToCart(product);
-    };
-
-    // Helper to render product card (Reusing style from Shop)
-    const ProductCard = ({ item }) => (
-        <div key={item.id} className="min-w-[280px] md:min-w-[300px] bg-white p-4 rounded-xl shadow-md border border-transparent hover:border-primary transition-all flex flex-col group snap-start">
-            <div className="bg-gray-100 h-48 rounded-lg mb-4 flex items-center justify-center text-gray-400 relative overflow-hidden">
-                <span className="text-4xl opacity-20">
-                    {item.category === 'Pottery' ? '🏺' : item.category === 'Textile' ? '🧶' : '🎁'}
-                </span>
-                {item.sale_price && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-                        {Math.round(((item.base_price - item.sale_price) / item.base_price) * 100)}% OFF
-                    </div>
-                )}
+    const GatewayCard = ({ title, image, link, linkText }) => (
+        <div className="bg-white flex flex-col p-4 z-20 h-[420px] cursor-pointer" onClick={() => navigate(link)}>
+            <h2 className="text-xl font-bold text-neutral-900 mb-4">{title}</h2>
+            <div className="flex-grow mb-4 overflow-hidden flex items-center justify-center">
+                <img src={image} alt={title} className="max-h-full object-cover" />
             </div>
-            <Link to={`/shop?search=${item.title}`} className="font-bold text-lg mb-1 group-hover:text-primary truncate block">
-                {item.title}
-            </Link>
-            <p className="text-xs text-gray-500 mb-2">by {item.store_name}</p>
+            <span className="text-xs text-teal-700 hover:text-red-700 hover:underline cursor-pointer">{linkText || 'See more'}</span>
+        </div>
+    );
 
-            <div className="mt-auto pt-4 flex items-center justify-between border-t border-gray-100">
-                <div className="flex flex-col">
-                    {item.sale_price ? (
-                        <>
-                            <span className="text-xs text-gray-400 line-through">₹{item.base_price}</span>
-                            <span className="font-bold text-xl text-neutral-900">₹{item.sale_price}</span>
-                        </>
-                    ) : (
-                        <span className="font-bold text-xl text-neutral-900">₹{item.base_price}</span>
-                    )}
-                </div>
-                <button
-                    onClick={() => handleAddToCart(item)}
-                    className="bg-primary hover:bg-accent text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm"
-                >
-                    Add
-                </button>
+    const ProductRow = ({ title, items }) => (
+        <div className="bg-white p-6 mb-6">
+            <div className="flex items-center gap-4 mb-4">
+                <h2 className="text-xl font-bold text-neutral-900">{title}</h2>
+                <Link to="/shop" className="text-sm text-teal-700 hover:underline">See all deals</Link>
+            </div>
+            <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
+                {items.map(item => (
+                    <div key={item.id} className="min-w-[200px] max-w-[200px] flex-shrink-0 cursor-pointer" onClick={() => navigate(`/product/${item.id}`)}>
+                        <div className="bg-gray-100 h-48 mb-2 flex items-center justify-center overflow-hidden rounded-md">
+                            {item.image_url ? (
+                                <img src={item.image_url} alt={item.title} className="w-full h-full object-contain mix-blend-multiply" />
+                            ) : (
+                                <span className="text-4xl opacity-20">📦</span>
+                            )}
+                        </div>
+                        <h3 className="text-sm font-medium hover:text-red-700 truncate">{item.title}</h3>
+                        <div className="flex items-center gap-2 mt-1">
+                            <span className="text-lg font-medium">₹{(item.sale_price || item.base_price)}</span>
+                            {item.sale_price && (
+                                <span className="text-xs text-gray-500 line-through">M.R.P: ₹{item.base_price}</span>
+                            )}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );
 
-    const potteryItems = products.filter(p => p.category === 'Pottery').slice(0, 5);
-    const textileItems = products.filter(p => p.category === 'Textile').slice(0, 5);
-    // "Trending" - currently just picking items with sale price or just random first few
-    const trendingItems = products.filter(p => p.sale_price).slice(0, 5);
+    const potteryItems = products.filter(p => p.category === 'Pottery').slice(0, 10);
+    const textileItems = products.filter(p => p.category === 'Textile').slice(0, 10);
+    const decorItems = products.filter(p => p.category === 'Decor').slice(0, 10);
 
     return (
-        <div className="min-h-screen bg-background text-zinc-900 pb-20">
-            {/* Hero Section */}
-            <section className="relative h-[60vh] md:h-[80vh] flex items-center justify-center bg-[url('https://images.unsplash.com/photo-1596232074366-0428943f765e?ixlib=rb-4.0.3')] bg-no-repeat bg-cover bg-center">
-                <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
-                <div className="relative z-10 text-center text-white p-4 max-w-3xl">
-                    <motion.h1
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-4xl md:text-7xl font-display font-bold mb-4 drop-shadow-lg"
-                    >
-                        Handcrafted Heritage
-                    </motion.h1>
-                    <p className="text-lg md:text-2xl mb-8 font-light drop-shadow-md text-gray-100">
-                        Direct from rural artisans to your home. Verified on Blockchain.
-                    </p>
-                    <Link to="/shop" className="bg-primary hover:bg-accent text-white font-bold py-4 px-10 rounded-full transition-transform hover:scale-105 inline-block shadow-2xl">
-                        Shop Now
-                    </Link>
+        <div className="min-h-screen bg-gray-200 pb-10">
+            {/* Hero Carousel (Simplified) */}
+            <div className="relative w-full h-[600px] bg-gradient-to-t from-gray-200 to-transparent">
+                <div className="absolute inset-0 overflow-hidden">
+                    <img
+                        src="https://images.unsplash.com/photo-1596232074366-0428943f765e?ixlib=rb-4.0.3"
+                        alt="Hero"
+                        className="w-full h-full object-cover object-center mask-image-gradient"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-200 h-full"></div>
                 </div>
-            </section>
+            </div>
 
-            {/* Categories Grid */}
-            <section className="py-12 px-4 max-w-7xl mx-auto -mt-20 relative z-20">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {['Pottery', 'Textile', 'Woodwork', 'Jewelry'].map(cat => (
-                        <Link key={cat} to={`/shop?category=${cat}`} className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all text-center group border border-gray-100">
-                            <h3 className="text-xl font-bold group-hover:text-primary">{cat}</h3>
-                            <p className="text-xs text-gray-500 mt-1">Explore Collection &rarr;</p>
-                        </Link>
-                    ))}
-                </div>
-            </section>
-
-            {/* Section: Trending / Deals */}
-            {trendingItems.length > 0 && (
-                <section className="py-12 px-4 max-w-7xl mx-auto">
-                    <div className="flex justify-between items-end mb-6">
-                        <h2 className="text-3xl font-display font-bold text-secondary">🔥 Hot Deals (Trending)</h2>
-                        <Link to="/shop" className="text-primary font-bold hover:underline">See all deals</Link>
-                    </div>
-                    <div className="flex overflow-x-auto gap-6 pb-4 scrollbar-hide snap-x">
-                        {trendingItems.map(item => <ProductCard key={item.id} item={item} />)}
-                    </div>
-                </section>
-            )}
-
-            {/* Feature Banner */}
-            <section className="py-16 bg-neutral-900 text-white my-12">
-                <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-12">
-                    <div className="flex-1">
-                        <h2 className="text-4xl font-bold mb-4 font-display">Crafted with Soul,<br />Verified by Tech.</h2>
-                        <p className="text-gray-400 text-lg mb-6">
-                            Every product on VARNA comes with a digital passport on the Polygon blockchain, ensuring 100% authenticity and fair wages for the maker.
-                        </p>
-                        <div className="flex gap-4">
-                            <div className="text-center">
-                                <span className="block text-3xl font-bold text-primary">100%</span>
-                                <span className="text-sm text-gray-400">Handmade</span>
-                            </div>
-                            <div className="h-12 w-px bg-gray-700"></div>
-                            <div className="text-center">
-                                <span className="block text-3xl font-bold text-primary">0%</span>
-                                <span className="text-sm text-gray-400">Middlemen</span>
-                            </div>
+            {/* Gateway Cards Grid - Overlaps Hero */}
+            <div className="max-w-[1500px] mx-auto px-4 -mt-80 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <GatewayCard
+                        title="Revamp your home with Decor"
+                        image="https://images.unsplash.com/photo-1616486338812-3dadae4b4f9d?w=500"
+                        link="/shop?category=Decor"
+                        linkText="Explore Home Decor"
+                    />
+                    <GatewayCard
+                        title="Handcrafted Pottery"
+                        image="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=500"
+                        link="/shop?category=Pottery"
+                        linkText="Shop Pottery"
+                    />
+                    <GatewayCard
+                        title="Authentic Textiles"
+                        image="https://images.unsplash.com/photo-1528574698133-0c1a76313d50?w=500"
+                        link="/shop?category=Textile"
+                        linkText="See all textiles"
+                    />
+                    <div className="bg-white flex flex-col p-6 z-20 h-[420px] justify-between">
+                        <div>
+                            <h2 className="text-xl font-bold text-neutral-900 mb-4">Sign in for the best experience</h2>
+                            {!user ? (
+                                <button onClick={() => navigate('/auth/login')} className="w-full bg-[#FFD814] hover:bg-[#F7CA00] text-black font-medium py-2 rounded-md shadow-sm border border-[#FCD200]">
+                                    Sign in securely
+                                </button>
+                            ) : (
+                                <div className="text-center py-4 bg-gray-50 rounded">
+                                    <p>Welcome back, {user.full_name}!</p>
+                                </div>
+                            )}
                         </div>
-                    </div>
-                    <div className="flex-1 bg-surface/10 p-8 rounded-2xl border border-white/10">
-                        <div className="text-center">
-                            <div className="text-6xl mb-4">🔗</div>
-                            <h3 className="text-xl font-bold">Polygon Integration</h3>
-                            <p className="text-gray-400 mt-2 text-sm">Scan the QR code on your product to see its journey from the village to your hands.</p>
-                        </div>
+                        <img src="https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=500" alt="Promo" className="h-40 object-cover mt-4" />
                     </div>
                 </div>
-            </section>
 
-            {/* Section: Pottery */}
-            <section className="py-12 px-4 max-w-7xl mx-auto">
-                <div className="flex justify-between items-end mb-6">
-                    <h2 className="text-3xl font-display font-bold text-secondary">🏺 Exquisite Pottery</h2>
-                    <Link to="/shop?category=Pottery" className="text-primary font-bold hover:underline">View all</Link>
-                </div>
-                <div className="flex overflow-x-auto gap-6 pb-4 scrollbar-hide snap-x">
-                    {potteryItems.map(item => <ProductCard key={item.id} item={item} />)}
-                    {potteryItems.length === 0 && <p className="text-gray-500">New stock coming soon.</p>}
-                </div>
-            </section>
+                {/* Horizontal Product Rows */}
+                <ProductRow title="Best Sellers in Pottery & Ceramics" items={potteryItems} />
+                <ProductRow title="Traditional Textiles from Artisans" items={textileItems} />
+                <ProductRow title="Unique Home Decor" items={decorItems} />
 
-            {/* Section: Textiles */}
-            <section className="py-12 px-4 max-w-7xl mx-auto">
-                <div className="flex justify-between items-end mb-6">
-                    <h2 className="text-3xl font-display font-bold text-secondary">🧶 Authentic Textiles</h2>
-                    <Link to="/shop?category=Textile" className="text-primary font-bold hover:underline">View all</Link>
+                {/* Bottom Banner */}
+                <div className="bg-white p-8 mt-8 text-center border border-gray-200">
+                    <h3 className="text-xl font-bold mb-2">See personalized recommendations</h3>
+                    {!user ? (
+                        <button onClick={() => navigate('/auth/login')} className="bg-gradient-to-b from-[#FFD814] to-[#F7CA00] border border-[#FCD200] px-20 py-1.5 rounded-md font-medium text-sm shadow-sm hover:shadow-md">
+                            Sign in
+                        </button>
+                    ) : (
+                        <span className="text-sm text-gray-500">Based on your browsing history</span>
+                    )}
+                    <p className="text-xs text-gray-500 mt-2">New customer? <Link to="/auth/register" className="text-teal-700 hover:underline">Start here.</Link></p>
                 </div>
-                <div className="flex overflow-x-auto gap-6 pb-4 scrollbar-hide snap-x">
-                    {textileItems.map(item => <ProductCard key={item.id} item={item} />)}
-                    {textileItems.length === 0 && <p className="text-gray-500">New stock coming soon.</p>}
-                </div>
-            </section>
+            </div>
         </div>
     );
 }

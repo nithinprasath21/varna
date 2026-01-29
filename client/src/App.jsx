@@ -13,6 +13,8 @@ const Shop = lazy(() => import('./pages/Shop'));
 const Cart = lazy(() => import('./pages/Cart'));
 const VerifyProduct = lazy(() => import('./pages/VerifyProduct'));
 const Profile = lazy(() => import('./pages/Profile'));
+const ProductDetails = lazy(() => import('./pages/ProductDetails'));
+const Orders = lazy(() => import('./pages/Orders'));
 
 import { CartProvider } from './context/CartContext';
 import Layout from './components/Layout';
@@ -71,10 +73,16 @@ function App() {
                 <Route path="/" element={<RootRedirect />} />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/verify/:hash" element={<VerifyProduct />} />
                 <Route path="/profile" element={
                   <ProtectedRoute>
                     <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/orders" element={
+                  <ProtectedRoute>
+                    <Orders />
                   </ProtectedRoute>
                 } />
               </Route>

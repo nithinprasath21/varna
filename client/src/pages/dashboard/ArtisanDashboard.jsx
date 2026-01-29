@@ -20,10 +20,11 @@ export default function ArtisanDashboard() {
         sale_price: '',
         stock_qty: '',
         category: 'Pottery',
-        is_premium: false
+        is_premium: false,
+        image_url: ''
     });
 
-    const [aiLoading, setAiLoading] = useState(false);
+
 
     // Blockchain State
     const [mintingId, setMintingId] = useState(null);
@@ -60,7 +61,8 @@ export default function ArtisanDashboard() {
             sale_price: product.sale_price || '',
             stock_qty: product.stock_qty,
             category: product.category,
-            is_premium: product.is_premium || false
+            is_premium: product.is_premium || false,
+            image_url: product.image_url || ''
         });
         setEditId(product.id);
         setIsEditing(true);
@@ -108,27 +110,13 @@ export default function ArtisanDashboard() {
     };
 
     const resetForm = () => {
-        setNewItem({ title: '', description: '', base_price: '', sale_price: '', stock_qty: '', category: 'Pottery', is_premium: false });
+        setNewItem({ title: '', description: '', base_price: '', sale_price: '', stock_qty: '', category: 'Pottery', is_premium: false, image_url: '' });
         setShowAddForm(false);
         setIsEditing(false);
         setEditId(null);
     };
 
-    const generateAIContent = async () => {
-        if (!newItem.title) return toast.error('Enter a title first');
-        setAiLoading(true);
-        try {
-            const res = await axios.post('http://localhost:5000/ai/generate-description',
-                { title: newItem.title, category: newItem.category }
-            );
-            setNewItem({ ...newItem, description: res.data.description });
-            toast.success('Description Generated!');
-        } catch (err) {
-            toast.error('AI Generation failed');
-        } finally {
-            setAiLoading(false);
-        }
-    };
+
 
     const handleMint = async (productId) => {
         setMintingId(productId);
@@ -212,6 +200,16 @@ export default function ArtisanDashboard() {
                                     />
                                 </div>
 
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                                    <input
+                                        className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                        placeholder="https://example.com/image.jpg"
+                                        value={newItem.image_url}
+                                        onChange={e => setNewItem({ ...newItem, image_url: e.target.value })}
+                                    />
+                                </div>
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
@@ -267,16 +265,8 @@ export default function ArtisanDashboard() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1 flex justify-between">
-                                        <span>Description</span>
-                                        <button
-                                            type="button"
-                                            onClick={generateAIContent}
-                                            disabled={aiLoading}
-                                            className="text-primary text-xs font-bold hover:underline disabled:opacity-50"
-                                        >
-                                            {aiLoading ? 'Magic Writing...' : '✨ AI Generate'}
-                                        </button>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Description
                                     </label>
                                     <textarea
                                         className="w-full p-2.5 border border-gray-300 rounded-lg h-32"
@@ -329,7 +319,8 @@ export default function ArtisanDashboard() {
                             <tbody className="divide-y divide-gray-100">
                                 {products.map((p) => (
                                     <tr key={p.id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-4 flex items-center gap-3">
+                                            {p.image_url && <img src={p.image_url} alt={p.title} className="w-12 h-12 object-cover rounded-md border border-gray-200" />}
                                             <div className="flex flex-col">
                                                 <span className="font-bold text-gray-800">{p.title}</span>
                                                 <span className="text-xs text-gray-500">{p.category} {p.is_premium && '• Premium'}</span>

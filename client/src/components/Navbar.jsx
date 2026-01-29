@@ -15,81 +15,92 @@ export default function Navbar() {
     };
 
     return (
-        <nav className="bg-neutral-900 text-white sticky top-0 z-50 shadow-lg">
-            <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-                {/* Logo */}
-                <Link to="/" className="text-2xl font-display font-bold tracking-tight text-white hover:text-gray-200">
-                    VARNA
-                </Link>
+        <div className="flex flex-col">
+            <nav className="bg-[#131921] text-white sticky top-0 z-50">
+                <div className="flex items-center gap-2 p-2">
+                    {/* Logo */}
+                    <Link to="/" className="px-2 border border-transparent hover:border-white rounded-sm flex flex-col items-center">
+                        <span className="text-2xl font-display font-bold tracking-tight text-white leading-none">VARNA</span>
+                        <span className="text-[10px] text-gray-300 -mt-1 tracking-widest text-right w-full">.in</span>
+                    </Link>
 
-                {/* Search Bar */}
-                <form onSubmit={handleSearch} className="flex-grow max-w-2xl hidden md:flex">
-                    <div className="relative w-full">
+                    {/* Deliver To */}
+                    <div className="hidden md:flex flex-col px-2 border border-transparent hover:border-white rounded-sm cursor-pointer">
+                        <span className="text-xs text-gray-300 ml-4">Deliver to</span>
+                        <div className="flex items-center font-bold text-sm">
+                            <span className="text-white mr-1">📍</span>
+                            <span>{user?.addresses?.[0]?.city || 'India'}</span>
+                        </div>
+                    </div>
+
+                    {/* Search Bar */}
+                    <form onSubmit={handleSearch} className="flex-grow flex h-10 rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-[#F7CA00] mx-4">
+                        <select className="bg-gray-100 text-gray-600 text-xs px-2 border-r border-gray-300 w-fit max-w-[50px] md:max-w-none focus:outline-none cursor-pointer hover:bg-gray-200">
+                            <option>All</option>
+                            <option>Pottery</option>
+                            <option>Textiles</option>
+                            <option>Woodwork</option>
+                            <option>Jewelry</option>
+                        </select>
                         <input
                             type="text"
-                            placeholder="Search for handcrafted items..."
-                            className="w-full h-10 px-4 rounded-l-md text-black focus:outline-none"
+                            placeholder="Search Varna.in..."
+                            className="bg-white text-black px-3 py-2 flex-grow focus:outline-none placeholder-gray-500"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
-                        <button type="submit" className="absolute right-0 top-0 h-10 px-6 bg-primary hover:bg-accent rounded-r-md transition-colors font-bold">
-                            Search
+                        <button type="submit" className="bg-[#FEBd69] hover:bg-[#F3A847] px-4 flex items-center justify-center text-slate-800">
+                            🔍
                         </button>
-                    </div>
-                </form>
+                    </form>
 
-                {/* Right Actions */}
-                <div className="flex items-center gap-6">
-                    <Link to="/shop" className="hover:text-primary transition-colors font-medium">Shop</Link>
-
-                    {/* Account Dropdown / Login */}
-                    {user ? (
-                        <div className="relative group">
-                            <button className="flex flex-col text-left">
-                                <span className="text-xs text-gray-300">Hello, {user.role === 'CUSTOMER' ? 'User' : user.role}</span>
-                                <span className="font-bold text-sm">Account & Lists</span>
-                            </button>
-                            {/* Dropdown Content */}
-                            <div className="absolute right-0 w-48 bg-white text-black shadow-xl rounded-md overflow-hidden hidden group-hover:block transition-all transform origin-top-right">
-                                {user.role !== 'CUSTOMER' ? (
-                                    <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-100">Dashboard</Link>
-                                ) : (
-                                    <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">Your Profile</Link>
-                                )}
-                                <button onClick={logout} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">Logout</button>
-                            </div>
+                    {/* Right Actions */}
+                    <div className="flex items-center gap-1 md:gap-4">
+                        {/* Language - Mock */}
+                        <div className="hidden md:flex items-end px-2 py-2 border border-transparent hover:border-white rounded-sm cursor-pointer gap-1">
+                            <span className="text-sm font-bold">EN</span>
                         </div>
-                    ) : (
-                        <Link to="/auth/login" className="flex flex-col text-left hover:text-primary">
-                            <span className="text-xs text-gray-300">Hello, sign in</span>
-                            <span className="font-bold text-sm">Account & Lists</span>
+
+                        {/* Account */}
+                        <Link to={user ? (user.role === 'CUSTOMER' ? "/profile" : "/dashboard") : "/auth/login"} className="px-2 py-1 border border-transparent hover:border-white rounded-sm">
+                            <div className="text-xs text-gray-300">Hello, {user && user.full_name ? user.full_name.split(' ')[0] : 'Member'}</div>
+                            <div className="font-bold text-sm leading-none">Account & Lists</div>
                         </Link>
-                    )}
 
-                    {/* Cart */}
-                    <Link to="/cart" className="flex items-end gap-1 relative hover:text-primary">
-                        <div className="relative">
-                            <span className="text-2xl">🛒</span>
-                            <span className="absolute -top-2 -right-2 bg-primary text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                                {cartItems.length}
-                            </span>
-                        </div>
-                        <span className="font-bold hidden sm:block">Cart</span>
-                    </Link>
-                </div>
-            </div>
+                        {/* Returns & Orders */}
+                        <Link to="/orders" className="hidden md:block px-2 py-1 border border-transparent hover:border-white rounded-sm">
+                            <div className="text-xs text-gray-300">Returns</div>
+                            <div className="font-bold text-sm leading-none">& Orders</div>
+                        </Link>
 
-            {/* Secondary Nav (Categories) */}
-            <div className="bg-neutral-800 text-sm py-2 px-4 shadow-inner overflow-x-auto whitespace-nowrap scrollbar-hide">
-                <div className="max-w-7xl mx-auto flex gap-6 text-gray-300">
-                    <Link to="/shop" className="hover:text-white transition-colors">All</Link>
-                    <Link to="/shop?category=Pottery" className="hover:text-white transition-colors">Pottery</Link>
-                    <Link to="/shop?category=Textile" className="hover:text-white transition-colors">Textiles</Link>
-                    <Link to="/shop?category=Woodwork" className="hover:text-white transition-colors">Woodwork</Link>
-                    <Link to="/shop?category=Jewelry" className="hover:text-white transition-colors">Jewelry</Link>
-                    <Link to="/shop?category=Decor" className="hover:text-white transition-colors">Home Decor</Link>
+                        {/* Cart */}
+                        <Link to="/cart" className="flex items-end px-2 border border-transparent hover:border-white rounded-sm relative">
+                            <div className="relative">
+                                <span className="text-3xl font-bold">🛒</span>
+                                <span className="absolute -top-1 left-1.5 text-[#F08804] font-bold text-base w-5 text-center">
+                                    {cartItems.length}
+                                </span>
+                            </div>
+                            <span className="font-bold text-sm mb-1 hidden sm:block">Cart</span>
+                        </Link>
+                    </div>
                 </div>
+            </nav>
+
+            {/* Secondary Nav */}
+            <div className="bg-[#232f3e] text-white flex items-center px-4 py-1.5 overflow-x-auto whitespace-nowrap scrollbar-hide text-sm gap-4">
+                <div className="flex items-center gap-1 font-bold cursor-pointer hover:border hover:border-white px-1 rounded-sm">
+                    <span>☰</span> All
+                </div>
+                <Link to="/shop?category=Pottery" className="px-2 border border-transparent hover:border-white rounded-sm cursor-pointer">Best Sellers</Link>
+                <Link to="/shop?category=Textile" className="px-2 border border-transparent hover:border-white rounded-sm cursor-pointer">Textiles</Link>
+                <Link to="/shop?category=Woodwork" className="px-2 border border-transparent hover:border-white rounded-sm cursor-pointer">Woodwork</Link>
+                <Link to="/shop?category=Jewelry" className="px-2 border border-transparent hover:border-white rounded-sm cursor-pointer">Jewelry</Link>
+                <Link to="/shop" className="px-2 border border-transparent hover:border-white rounded-sm cursor-pointer">New Releases</Link>
+                <Link to="/shop" className="px-2 border border-transparent hover:border-white rounded-sm cursor-pointer hidden md:block">Home & Kitchen</Link>
+                <Link to="/shop" className="px-2 border border-transparent hover:border-white rounded-sm cursor-pointer hidden md:block">Computers</Link>
+                <Link to="/shop" className="px-2 border border-transparent hover:border-white rounded-sm cursor-pointer hidden md:block">Registry</Link>
             </div>
-        </nav>
+        </div>
     );
 }
