@@ -18,8 +18,8 @@ const register = async (req, res) => {
         }
 
         const newUser = await db.query(
-            'INSERT INTO users (email, phone_number, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, email, role',
-            [email, phone_number, hashedPassword, role]
+            'INSERT INTO users (email, phone_number, password_hash, role, full_name) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, role, full_name',
+            [email, phone_number, hashedPassword, role, req.body.full_name || '']
         );
 
         res.status(201).json({ message: 'User registered successfully', user: newUser.rows[0] });
@@ -53,6 +53,7 @@ const login = async (req, res) => {
                 id: user.rows[0].id,
                 email: user.rows[0].email,
                 role: user.rows[0].role,
+                full_name: user.rows[0].full_name,
             },
         });
     } catch (err) {
@@ -64,7 +65,7 @@ const login = async (req, res) => {
 const getProfile = async (req, res) => {
     try {
         const userId = req.userId;
-        const userRes = await db.query('SELECT id, email, phone_number, role, is_active FROM users WHERE id = $1', [userId]);
+        const userRes = await db.query('SELECT id, email, phone_number, role, is_active, full_name FROM users WHERE id = $1', [userId]);
 
         if (userRes.rows.length === 0) return res.status(404).json({ message: 'User not found' });
 
@@ -83,10 +84,9 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const userId = req.userId;
-        const { phone_number } = req.body;
-        // In future can add name, photo_url etc if column exists. For now updating phone.
+        const { phone_number, full_name } = req.body;
 
-        await db.query('UPDATE users SET phone_number = $1 WHERE id = $2', [phone_number, userId]);
+        await db.query('UPDATE users SET phone_number = $1, full_name = $2 WHERE id = $3', [phone_number, full_name, userId]);
         res.json({ message: 'Profile updated' });
     } catch (err) {
         console.error(err);
