@@ -51,6 +51,9 @@ const getAllProducts = async (req, res) => {
 const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
+        if (isNaN(id)) {
+            return res.status(400).json({ message: 'Invalid Product Identifier' });
+        }
         const result = await db.query(
             `SELECT p.*, a.store_name, a.bio, pm.media_url as image_url,
                     COALESCE(AVG(r.rating), 0) as average_rating,

@@ -7,11 +7,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#D97706', // Amber-600
-        secondary: '#92400E', // Amber-900
-        accent: '#F59E0B', // Amber-500
-        background: '#FAF5EE', // Warm beige
-        surface: '#FFFFFF',
+        primary: '#FFD200',
+        secondary: '#000000',
+        accent: '#333333',
+        background: '#FFFFFF',
+        surface: '#FDFDFD',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

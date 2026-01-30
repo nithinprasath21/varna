@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { WifiOff } from 'lucide-react';
 
 export default function OfflineBanner() {
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -21,12 +22,13 @@ export default function OfflineBanner() {
         <AnimatePresence>
             {isOffline && (
                 <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: 'auto' }}
-                    exit={{ height: 0 }}
-                    className="bg-neutral-800 text-white text-center py-2 text-sm font-medium"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="bg-black text-primary text-center py-3 text-[10px] font-black uppercase tracking-[0.4em] italic flex items-center justify-center gap-4 border-b-2 border-primary"
                 >
-                    You are currently offline. Application is running in offline mode.
+                    <WifiOff size={14} strokeWidth={3} />
+                    LEDGER DISCONNECTED / PROTOCOL OPERATING IN LOCAL BUFFER MODE
                 </motion.div>
             )}
         </AnimatePresence>

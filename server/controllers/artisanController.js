@@ -60,7 +60,7 @@ const getDashboardStats = async (req, res) => {
         const marketReachRes = await db.query(`
             SELECT 
                 (shipping_address->>'city') as city,
-                COUNT(*) as order_count
+                COUNT(*)::int as order_count
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
             JOIN products p ON oi.product_id = p.id
@@ -99,6 +99,7 @@ const getDashboardStats = async (req, res) => {
                 o.shipping_address,
                 o.tracking_number,
                 o.shipping_proof_url,
+                p.id as product_id,
                 p.title as product_title,
                 oi.quantity,
                 oi.price_at_purchase as price,
@@ -249,4 +250,63 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-module.exports = { getDashboardStats, addProduct, getProducts, updateProduct, deleteProduct };
+const getProfile = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const result = await db.query(`
+            SELECT a.*, u.email, u.phone_number, u.full_name
+            FROM artisans a
+            JOIN users u ON a.user_id = u.id
+            WHERE a.user_id = $1
+        `, [userId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Artisan profile not found' });
+        }
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error fetching artisan profile' });
+    }
+};
+
+const updateProfile = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const {
+            full_name, phone_number, store_name, bio,
+            craft_type, experience_years, bank_acc_no,
+            ifsc, bank_name, upi_id, pan_number
+        } = req.body;
+
+        // Start transaction
+        await db.query('BEGIN');
+
+        // Update user table
+        await db.query(
+            'UPDATE users SET full_name = $1, phone_number = $2 WHERE id = $3',
+            [full_name, phone_number, userId]
+        );
+
+        // Update artisan table
+        await db.query(
+            `UPDATE artisans 
+             SET store_name = $1, bio = $2, craft_type = $3, experience_years = $4,
+                 bank_acc_no = $5, ifsc = $6, bank_name = $7, upi_id = $8, pan_number = $9
+             WHERE user_id = $10`,
+            [store_name, bio, craft_type, experience_years, bank_acc_no, ifsc, bank_name, upi_id, pan_number, userId]
+        );
+
+        await db.query('COMMIT');
+        res.json({ message: 'Artisan profile updated successfully' });
+    } catch (err) {
+        await db.query('ROLLBACK');
+        console.error(err);
+        res.status(500).json({ message: 'Update failed' });
+    }
+};
+
+module.exports = {
+    getDashboardStats, addProduct, getProducts,
+    updateProduct, deleteProduct, getProfile, updateProfile
+};

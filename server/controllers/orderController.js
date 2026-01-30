@@ -5,12 +5,23 @@ const placeOrder = async (req, res) => {
     try {
         await client.query('BEGIN');
         const userId = req.userId;
-        const { items, address_id, payment_mode, total_amount } = req.body;
+        const { items, address_id, payment_mode, total_amount, coupon_code } = req.body;
 
         // Get address details
         const addrRes = await client.query('SELECT * FROM addresses WHERE id = $1', [address_id]);
         if (addrRes.rows.length === 0) throw new Error('Address not found');
         const shippingAddress = addrRes.rows[0];
+
+        // Handle Coupon logic
+        if (coupon_code) {
+            const coupRes = await client.query(
+                'UPDATE coupons SET current_uses = current_uses + 1 WHERE code = $1 AND is_active = TRUE AND (expiry_date IS NULL OR expiry_date > CURRENT_TIMESTAMP) AND current_uses < max_uses RETURNING id',
+                [coupon_code.toUpperCase()]
+            );
+            if (coupRes.rows.length === 0) {
+                throw new Error('Coupon invalid or exhausted');
+            }
+        }
 
         // Create Order
         const orderRes = await client.query(
@@ -48,6 +59,7 @@ const getOrderHistory = async (req, res) => {
             `SELECT o.*, 
                     json_agg(json_build_object(
                         'id', oi.id, 
+                        'product_id', p.id,
                         'product_title', p.title, 
                         'quantity', oi.quantity, 
                         'price', oi.price_at_purchase,

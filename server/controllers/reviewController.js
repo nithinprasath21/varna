@@ -3,12 +3,8 @@ const db = require('../db');
 const addReview = async (req, res) => {
     try {
         const { product_id, rating, title, comment } = req.body;
-        const user_id = req.user.id; // From authMiddleware
+        const user_id = req.userId;
 
-        // Check if user has purchased the product (Optional but good for Verified Purchase)
-        // For now, we allow anyone logged in to review, but we can flag verified later.
-
-        // Check if already reviewed
         const existingReview = await db.query(
             'SELECT id FROM reviews WHERE product_id = $1 AND user_id = $2',
             [product_id, user_id]
@@ -30,4 +26,47 @@ const addReview = async (req, res) => {
     }
 };
 
-module.exports = { addReview };
+const getReviews = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const result = await db.query(`
+            SELECT r.*, u.full_name as reviewer_name 
+            FROM reviews r
+            JOIN users u ON r.user_id = u.id
+            WHERE r.product_id = $1
+            ORDER BY r.created_at DESC
+        `, [productId]);
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error fetching reviews' });
+    }
+};
+
+const getArtisanReviews = async (req, res) => {
+    try {
+        const user_id = req.userId;
+
+        // Find artisan_id for this user
+        const artRes = await db.query('SELECT id FROM artisans WHERE user_id = $1', [user_id]);
+        if (artRes.rows.length === 0) {
+            return res.status(403).json({ message: 'Not an artisan' });
+        }
+        const artisan_id = artRes.rows[0].id;
+
+        const result = await db.query(`
+            SELECT r.*, p.id as product_id, p.title as product_title, u.full_name as reviewer_name
+            FROM reviews r
+            JOIN products p ON r.product_id = p.id
+            JOIN users u ON r.user_id = u.id
+            WHERE p.artisan_id = $1
+            ORDER BY r.created_at DESC
+        `, [artisan_id]);
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error fetching artisan reviews' });
+    }
+};
+
+module.exports = { addReview, getReviews, getArtisanReviews };

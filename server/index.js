@@ -12,6 +12,7 @@ const shopRoutes = require('./routes/shopRoutes');
 const blockchainRoutes = require('./routes/blockchainRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const couponRoutes = require('./routes/couponRoutes');
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.use('/shop', shopRoutes);
 app.use('/blockchain', blockchainRoutes);
 app.use('/orders', orderRoutes);
 app.use('/reviews', reviewRoutes);
+app.use('/coupons', couponRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to VARNA API' });
