@@ -9,4 +9,7 @@ router.get('/products', verifyToken, verifyRole(['ARTISAN']), controller.getProd
 router.put('/products/:id', verifyToken, verifyRole(['ARTISAN']), controller.updateProduct);
 router.delete('/products/:id', verifyToken, verifyRole(['ARTISAN']), controller.deleteProduct);
 
+router.get('/profile', verifyToken, verifyRole(['ARTISAN']), controller.getProfile);
+router.put('/profile', verifyToken, verifyRole(['ARTISAN']), controller.updateProfile);
+
 module.exports = router;

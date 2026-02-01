@@ -56,110 +56,130 @@ export default function Shop() {
     }
 
     return (
-        <div className="bg-background min-h-screen py-8">
-            <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row gap-8">
-                {/* Sidebar Filters */}
-                <aside className="w-full md:w-64 flex-shrink-0">
-                    <div className="bg-surface p-6 rounded-lg shadow-sm border border-gray-100 sticky top-24">
-                        <h3 className="font-bold text-lg mb-4 text-secondary">Filters</h3>
+        <div className="bg-white min-h-screen py-16">
+            <div className="max-w-7xl mx-auto px-8">
+                {/* Search / Filter Summary */}
+                <div className="mb-16 flex flex-col md:flex-row justify-between items-baseline gap-4 border-b-2 border-black pb-8">
+                    <div>
+                        <h1 className="text-5xl font-black italic uppercase tracking-tighter">
+                            {category ? category : 'Catalogue'}
+                        </h1>
+                        {search && (
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mt-2 italic">
+                                Search Result for: <span className="text-black">"{search}"</span>
+                            </p>
+                        )}
+                    </div>
+                    <div className="flex gap-4">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Showing {products.length} Items</span>
+                    </div>
+                </div>
 
-                        <div className="mb-6">
-                            <h4 className="font-semibold mb-2 text-sm text-gray-500 uppercase tracking-wider">Category</h4>
-                            <ul className="space-y-2 text-sm">
-                                <li>
-                                    <button
-                                        onClick={() => handleCategoryChange('')}
-                                        className={`block w-full text-left hover:text-primary ${!category ? 'font-bold text-primary' : ''}`}
-                                    >
-                                        All Products
-                                    </button>
-                                </li>
-                                {['Pottery', 'Textile', 'Woodwork', 'Jewelry', 'Decor'].map(cat => (
-                                    <li key={cat}>
+                <div className="flex flex-col md:flex-row gap-16">
+                    {/* Sidebar Filters */}
+                    <aside className="w-full md:w-48 flex-shrink-0">
+                        <div className="sticky top-24 space-y-12">
+                            <div>
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-6 italic">Categories</h3>
+                                <ul className="space-y-4">
+                                    <li>
                                         <button
-                                            onClick={() => handleCategoryChange(cat)}
-                                            className={`block w-full text-left hover:text-primary ${category === cat ? 'font-bold text-primary' : ''}`}
+                                            onClick={() => handleCategoryChange('')}
+                                            className={`text-xs font-black uppercase tracking-widest transition-all ${!category ? 'text-black border-l-4 border-primary pl-3' : 'text-gray-400 hover:text-black hover:pl-2'}`}
                                         >
-                                            {cat}
+                                            All Masterpieces
                                         </button>
                                     </li>
-                                ))}
-                            </ul>
+                                    {['Pottery', 'Textile', 'Woodwork', 'Jewelry', 'Decor'].map(cat => (
+                                        <li key={cat}>
+                                            <button
+                                                onClick={() => handleCategoryChange(cat)}
+                                                className={`text-xs font-black uppercase tracking-widest transition-all ${category === cat ? 'text-black border-l-4 border-primary pl-3' : 'text-gray-400 hover:text-black hover:pl-2'}`}
+                                            >
+                                                {cat}
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div className="hidden md:block">
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-6 italic">Curation</h3>
+                                <p className="text-[9px] font-bold text-gray-400 leading-loose">
+                                    Every piece in our shop is hand-verified and minted on the blockchain for absolute authenticity.
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </aside>
+                    </aside>
 
-                {/* Product Grid */}
-                <div className="flex-grow">
-                    <header className="mb-6 flex justify-between items-center">
-                        <h1 className="text-2xl font-bold text-secondary">
-                            {category ? `${category}` : 'All Products'}
-                            {search && <span className="text-gray-500 font-normal"> results for "{search}"</span>}
-                        </h1>
-                        <span className="text-sm text-gray-500">{products.length} items</span>
-                    </header>
+                    {/* Product Grid */}
+                    <div className="flex-grow">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-8">
+                            {products.map(item => {
+                                const cartItem = cartItems.find(c => c.id === item.id);
+                                const qty = cartItem ? cartItem.qty : 0;
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {products.map(item => {
-                            const cartItem = cartItems.find(c => c.id === item.id);
-                            const qty = cartItem ? cartItem.qty : 0;
-
-                            return (
-                                <Link to={`/product/${item.id}`} key={item.id} className="bg-white p-4 rounded-xl shadow-md border-transparent hover:border-primary border transition-all flex flex-col group">
-                                    <div className="bg-gray-100 h-48 rounded-lg mb-4 flex items-center justify-center text-gray-400 relative overflow-hidden">
-                                        {item.image_url ? (
-                                            <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                        ) : (
-                                            <span className="text-4xl opacity-20">
-                                                {item.category === 'Pottery' ? '🏺' : item.category === 'Textile' ? '🧶' : '🎁'}
-                                            </span>
-                                        )}
-                                        {item.sale_price && (
-                                            <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-                                                {Math.round(((item.base_price - item.sale_price) / item.base_price) * 100)}% OFF
-                                            </div>
-                                        )}
-                                    </div>
-                                    <h3 className="font-bold text-lg mb-1 group-hover:text-primary truncate">{item.title}</h3>
-                                    <p className="text-xs text-gray-500 mb-2">by {item.store_name}</p>
-
-                                    <div className="mt-auto pt-4 flex items-center justify-between border-t border-gray-100">
-                                        <div className="flex flex-col">
-                                            {item.sale_price ? (
-                                                <>
-                                                    <span className="text-xs text-gray-400 line-through">₹{item.base_price}</span>
-                                                    <span className="font-bold text-xl text-neutral-900">₹{item.sale_price}</span>
-                                                </>
+                                return (
+                                    <Link to={`/product/${item.id}`} key={item.id} className="group relative flex flex-col">
+                                        <div className="aspect-[3/4] bg-gray-50 mb-6 relative overflow-hidden group-hover:shadow-[0_20px_40px_-15px_rgba(255,210,0,0.3)] transition-all duration-500">
+                                            {item.image_url ? (
+                                                <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                             ) : (
-                                                <span className="font-bold text-xl text-neutral-900">₹{item.base_price}</span>
+                                                <div className="w-full h-full flex items-center justify-center text-5xl font-black italic text-gray-100">VARNA</div>
                                             )}
+
+                                            {item.sale_price && (
+                                                <div className="absolute top-0 right-0 bg-primary text-black text-[10px] font-black uppercase px-4 py-2 italic shadow-[4px_4px_0_0_rgba(0,0,0,1)] m-4">
+                                                    -{Math.round(((item.base_price - item.sale_price) / item.base_price) * 100)}%
+                                                </div>
+                                            )}
+
+                                            <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                                                {qty === 0 ? (
+                                                    <button
+                                                        onClick={(e) => handleAddToCart(e, item)}
+                                                        className="w-full bg-black text-white text-[10px] font-black uppercase tracking-widest py-4 hover:bg-primary hover:text-black transition-all"
+                                                    >
+                                                        Quick Add +
+                                                    </button>
+                                                ) : (
+                                                    <div className="flex items-center bg-black text-white py-3 px-4 justify-between" onClick={(e) => e.preventDefault()}>
+                                                        <button onClick={(e) => handleUpdateQty(e, item, qty - 1)} className="text-xl font-black hover:text-primary transition-colors pr-2">-</button>
+                                                        <span className="text-xs font-black tracking-widest italic">{qty} IN CART</span>
+                                                        <button onClick={(e) => handleUpdateQty(e, item, qty + 1)} className="text-xl font-black hover:text-primary transition-colors pl-2">+</button>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
-                                        {qty === 0 ? (
-                                            <button
-                                                onClick={(e) => handleAddToCart(e, item)}
-                                                className="bg-primary hover:bg-accent text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm"
-                                            >
-                                                Add to Cart
-                                            </button>
-                                        ) : (
-                                            <div className="flex items-center gap-2" onClick={(e) => e.preventDefault()}>
-                                                <button onClick={(e) => handleUpdateQty(e, item, qty - 1)} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-primary font-bold">-</button>
-                                                <span className="font-bold text-sm w-4 text-center">{qty}</span>
-                                                <button onClick={(e) => handleUpdateQty(e, item, qty + 1)} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-primary font-bold">+</button>
+                                        <div className="space-y-1">
+                                            <h3 className="font-black italic text-sm uppercase tracking-tight text-black group-hover:text-primary transition-colors truncate">{item.title}</h3>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">by {item.store_name}</p>
+
+                                            <div className="flex items-baseline gap-3 pt-2">
+                                                {item.sale_price ? (
+                                                    <>
+                                                        <span className="text-lg font-black italic text-black">₹{item.sale_price}</span>
+                                                        <span className="text-[10px] text-gray-300 line-through font-bold italic">₹{item.base_price}</span>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-lg font-black italic text-black">₹{item.base_price}</span>
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
-                                </Link>
-                            );
-                        })}
-                    </div>
-                    {products.length === 0 && (
-                        <div className="text-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                            <p className="text-gray-500">No products found matching your criteria.</p>
-                            <button onClick={() => { setSearchParams({}); }} className="mt-4 text-primary font-bold hover:underline">Clear Filters</button>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
                         </div>
-                    )}
+
+                        {products.length === 0 && (
+                            <div className="text-center py-40 border-l border-r border-gray-100 italic">
+                                <h3 className="text-4xl font-black uppercase tracking-tighter text-gray-100 mb-6 italic select-none">Void Catalogue</h3>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">No masterpieces found in this category.</p>
+                                <button onClick={() => { setSearchParams({}); }} className="text-xs font-black uppercase tracking-widest border-b-4 border-primary hover:text-primary transition-colors pb-1">Reset Filters</button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

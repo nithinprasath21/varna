@@ -23,44 +23,65 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="min-h-screen flex items-center justify-center bg-white px-4 relative overflow-hidden">
+            {/* Background Accents */}
+            <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/5 -skew-x-12 transform translate-x-20 z-0" />
+
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-surface p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-white p-12 w-full max-w-md border-[6px] border-black shadow-[20px_20px_0px_0px_rgba(255,210,0,1)] relative z-10"
             >
-                <h2 className="text-3xl font-display font-bold text-secondary mb-6 text-center">Welcome Back</h2>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Email</label>
+                <div className="mb-10 text-center">
+                    <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-2">Login / 01</h2>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Access your fashion studio</p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-8">
+                    <div className="relative group">
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Identity / Email</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 p-2 border"
+                            className="block w-full border-b-2 border-gray-100 focus:border-black bg-transparent py-3 font-bold text-sm tracking-tight transition-all outline-none"
+                            placeholder="your@studio.com"
                             required
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Password</label>
+                    <div className="relative group">
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Security / Password</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 p-2 border"
+                            className="block w-full border-b-2 border-gray-100 focus:border-black bg-transparent py-3 font-bold text-sm tracking-tight transition-all outline-none"
+                            placeholder="••••••••"
                             required
                         />
                     </div>
-                    <button
-                        type="submit"
-                        className="w-full bg-primary hover:bg-accent text-white font-bold py-3 rounded-lg transition-colors shadow-lg"
-                    >
-                        Log In
-                    </button>
+
+                    <div className="pt-4">
+                        <button
+                            type="submit"
+                            className="w-full bg-black text-white font-black italic uppercase tracking-[0.2em] py-5 shadow-[8px_8px_0px_0px_rgba(255,210,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+                        >
+                            Enter Studio
+                        </button>
+                    </div>
                 </form>
-                <p className="mt-4 text-center text-sm text-gray-600">
-                    Don't have an account? <Link to="/auth/register" className="text-primary font-bold hover:underline">Sign up</Link>
-                </p>
+
+                <div className="mt-12 pt-8 border-t border-gray-100 flex flex-col gap-4 text-center">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        New to Varna?
+                    </p>
+                    <Link
+                        to="/auth/register"
+                        className="text-xs font-black uppercase tracking-[0.2em] hover:text-primary transition-colors border-2 border-black py-3"
+                    >
+                        Create Identity
+                    </Link>
+                </div>
             </motion.div>
         </div>
     );
