@@ -9,18 +9,29 @@ export default function NGODashboard() {
     const { user, logout } = useAuth();
     const [artisans, setArtisans] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [ngoStats, setNgoStats] = useState(null);
+
+    // Modal States
+    const [showLinkModal, setShowLinkModal] = useState(false);
+    const [linkEmail, setLinkEmail] = useState('');
+    const [selectedArtisan, setSelectedArtisan] = useState(null);
+    const [artisanStats, setArtisanStats] = useState(null);
+    const [statsLoading, setStatsLoading] = useState(false);
 
     useEffect(() => {
-        fetchArtisans();
+        fetchAllData();
     }, []);
 
-    const fetchArtisans = async () => {
+    const fetchAllData = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5000/ngo/artisans', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setArtisans(res.data);
+            const [artisansRes, statsRes] = await Promise.all([
+                axios.get('http://localhost:5000/ngo/artisans', { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get('http://localhost:5000/ngo/stats', { headers: { Authorization: `Bearer ${token}` } })
+            ]);
+
+            setArtisans(artisansRes.data);
+            setNgoStats(statsRes.data);
             setLoading(false);
         } catch (err) {
             console.error(err);
@@ -48,7 +59,7 @@ export default function NGODashboard() {
         if (!email) return;
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/ngo/link-artisan', { artisanEmail: email }, {
+            await axios.post('http://localhost:5000/ngo/link-artisan', { artisanEmail: linkEmail }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('ARTISAN LINK ESTABLISHED');
@@ -168,6 +179,141 @@ export default function NGODashboard() {
                     </div>
                 </div>
             </div>
+
+            {/* Link Artisan Modal */}
+            <AnimatePresence>
+                {showLinkModal && (
+                    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="bg-white w-full max-w-md border-4 border-black p-8 relative"
+                        >
+                            <button onClick={() => setShowLinkModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-red-600">
+                                <X size={24} strokeWidth={3} />
+                            </button>
+                            <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-8">Establish New Link</h2>
+                            <form onSubmit={handleLinkArtisan} className="space-y-6">
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest mb-2 italic">Artisan Email Address</label>
+                                    <input
+                                        type="email"
+                                        required
+                                        className="w-full bg-gray-50 border-2 border-gray-200 p-4 text-xs font-black uppercase focus:border-black outline-none transition-colors"
+                                        placeholder="ENTER EMAIL ID"
+                                        value={linkEmail}
+                                        onChange={e => setLinkEmail(e.target.value)}
+                                    />
+                                </div>
+                                <button type="submit" className="w-full bg-black text-white py-4 text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-black transition-all border-2 border-transparent">
+                                    INITIATE PROTOCOL
+                                </button>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Analytics Modal */}
+            <AnimatePresence>
+                {selectedArtisan && (
+                    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-8 overflow-y-auto">
+                        {/* Close button fixed to viewport to ensure visibility */}
+                        <button
+                            onClick={() => setSelectedArtisan(null)}
+                            className="fixed top-8 right-8 text-white hover:text-red-500 transition-colors z-[60] bg-black border-2 border-white p-2 rounded-full"
+                        >
+                            <X size={32} strokeWidth={3} />
+                        </button>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 50 }}
+                            className="bg-white w-full max-w-6xl border-4 border-primary min-h-[80vh] p-12 relative flex flex-col"
+                            onClick={(e) => e.stopPropagation()} // Prevent click from closing if we added overlay click handler
+                        >
+                            {statsLoading ? (
+                                <div className="flex-grow flex items-center justify-center flex-col gap-4">
+                                    <div className="w-16 h-16 border-4 border-black border-t-primary animate-spin" />
+                                    <p className="text-xs font-black uppercase tracking-widest italic animate-pulse">Computing Artisan Ledger...</p>
+                                </div>
+                            ) : artisanStats ? (
+                                <div className="space-y-16">
+                                    <div>
+                                        <h2 className="text-6xl font-black italic uppercase tracking-tighter mb-2">{artisanStats.store_name}</h2>
+                                        <p className="text-[12px] font-black uppercase tracking-[0.3em] text-gray-400 italic">INTELLIGENCE REPORT / ID-{selectedArtisan.id}</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                                        <div className="space-y-8">
+                                            <h3 className="text-2xl font-black italic uppercase tracking-tighter flex items-center gap-3"><TrendingUp size={24} /> Revenue Performance</h3>
+                                            <div className="h-80 w-full border-2 border-gray-100 bg-gray-50 p-4">
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <BarChart data={artisanStats.sales_trend}>
+                                                        <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                                                        <XAxis dataKey="date" tick={{ fontSize: 10, fontFamily: 'monospace' }} stroke="#000" />
+                                                        <YAxis tick={{ fontSize: 10, fontFamily: 'monospace' }} stroke="#000" />
+                                                        <Tooltip
+                                                            cursor={{ fill: '#f3f4f6' }}
+                                                            contentStyle={{ backgroundColor: '#000', border: 'none', color: '#fff' }}
+                                                            itemStyle={{ fontFamily: 'monospace', fontSize: '12px' }}
+                                                        />
+                                                        <Bar dataKey="revenue" fill="#FFD200" name="REVENUE (INR)" />
+                                                    </BarChart>
+                                                </ResponsiveContainer>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-8">
+                                            <h3 className="text-2xl font-black italic uppercase tracking-tighter">Category Distribution</h3>
+                                            <div className="h-80 w-full border-2 border-gray-100 bg-gray-50 p-4 flex items-center justify-center">
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <PieChart>
+                                                        <Pie
+                                                            data={artisanStats.categories}
+                                                            cx="50%"
+                                                            cy="50%"
+                                                            innerRadius={60}
+                                                            outerRadius={100}
+                                                            paddingAngle={5}
+                                                            dataKey="count"
+                                                        >
+                                                            {artisanStats.categories.map((entry, index) => (
+                                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                            ))}
+                                                        </Pie>
+                                                        <Tooltip />
+                                                        <Legend />
+                                                    </PieChart>
+                                                </ResponsiveContainer>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-8">Top Performing Assets</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                                            {artisanStats.best_sellers.map((item, idx) => (
+                                                <div key={idx} className="bg-black text-white p-6 border-l-4 border-primary">
+                                                    <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 italic">RANK #{idx + 1}</div>
+                                                    <div className="text-xl font-black italic uppercase tracking-tighter leading-none mb-4">{item.title}</div>
+                                                    <div className="text-primary text-xs font-black uppercase tracking-widest">{item.total_sold} UNITS DEPLOYED</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="text-center py-20">
+                                    <p className="text-xl font-black italic uppercase text-red-600">Failed to load intelligence data.</p>
+                                </div>
+                            )}
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

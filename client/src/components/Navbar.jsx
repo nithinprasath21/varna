@@ -9,11 +9,55 @@ export default function Navbar() {
     const { cartItems } = useCart();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    const [isListening, setIsListening] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleSearch = (e) => {
         e.preventDefault();
-        navigate(`/shop?search=${searchTerm}`);
+        if (searchTerm.trim()) {
+            navigate(`/shop?search=${searchTerm}`);
+            setIsMobileMenuOpen(false);
+        }
     };
+
+    const handleVoiceSearch = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            alert("Your browser does not support voice search. Please use Chrome or Edge.");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        setIsListening(true);
+
+        recognition.onstart = () => {
+            console.log("Voice recognition started");
+        }
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            setSearchTerm(transcript);
+            navigate(`/shop?search=${transcript}`);
+            setIsListening(false);
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Voice recognition error", event.error);
+            setIsListening(false);
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+        };
+
+        recognition.start();
+    };
+
 
     return (
         <div className="flex flex-col">
