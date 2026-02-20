@@ -101,6 +101,12 @@ export default function ArtisanDashboard() {
             setReviews(reviewsRes.data);
             setCoupons(couponsRes.data);
             setArtisanProfile(profileRes.data);
+
+            // Enforce store settings completion
+            if (!profileRes.data.store_name || !profileRes.data.bank_acc_no || !profileRes.data.upi_id) {
+                setActiveTab('store');
+            }
+
             setLoading(false);
         } catch (err) {
             console.error(err);
@@ -415,7 +421,13 @@ export default function ArtisanDashboard() {
                     ].map(tab => (
                         <button
                             key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
+                            onClick={() => {
+                                if ((!artisanProfile?.store_name || !artisanProfile?.bank_acc_no || !artisanProfile?.upi_id) && tab.id !== 'store') {
+                                    toast.error("Please complete your Store Settings first to unlock the dashboard.");
+                                    return;
+                                }
+                                setActiveTab(tab.id);
+                            }}
                             className={`flex items-center gap-3 px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-black text-white shadow-[8px_8px_0px_0px_rgba(255,210,0,1)]' : 'bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-black'}`}
                         >
                             <tab.icon size={16} strokeWidth={3} />
@@ -1338,10 +1350,10 @@ export default function ArtisanDashboard() {
 
                             {/* Order Summaryistics */}
                             <div className="space-y-8">
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary bg-black inline-block px-4 py-1 italic">Liquid Assets Logistics</h3>
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary bg-black inline-block px-4 py-1 italic">Banking & Payments</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Bank Protocol (Account No)</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Account Number</label>
                                         <input
                                             className="w-full bg-gray-50 border-b-4 border-transparent focus:border-black p-4 text-sm font-black uppercase outline-none"
                                             value={artisanProfile.bank_acc_no || ''}
@@ -1349,7 +1361,7 @@ export default function ArtisanDashboard() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">System Code (IFSC)</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">IFSC Code</label>
                                         <input
                                             className="w-full bg-gray-50 border-b-4 border-transparent focus:border-black p-4 text-sm font-black uppercase outline-none"
                                             value={artisanProfile.ifsc || ''}
@@ -1365,7 +1377,7 @@ export default function ArtisanDashboard() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">UPI Identifier</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">UPI ID</label>
                                         <input
                                             className="w-full bg-gray-50 border-b-4 border-transparent focus:border-black p-4 text-sm font-black uppercase outline-none"
                                             value={artisanProfile.upi_id || ''}
@@ -1376,7 +1388,7 @@ export default function ArtisanDashboard() {
                             </div>
 
                             <button type="submit" className="w-full bg-black text-white py-8 text-xs font-black uppercase tracking-[0.5em] italic shadow-[16px_16px_0px_0px_rgba(255,210,0,1)] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all">
-                                COMMIT PARAMETERS TO STORE CORE
+                                SAVE STORE SETTINGS
                             </button>
                         </form>
                     </div>

@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useState, useEffect } from 'react';
 import { Search, User, ShoppingBag, LogOut, Menu, Mic, X } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 export default function Navbar() {
     const { user, logout } = useAuth();
@@ -28,34 +29,72 @@ export default function Navbar() {
             return;
         }
 
-        const recognition = new SpeechRecognition();
+        let recognition;
+        try {
+            recognition = new SpeechRecognition();
+        } catch (e) {
+            toast?.error("Speech API not available.");
+            return;
+        }
+
+        // Brave blocks continuous listening by default if Google services are disabled
+        // We set to false to give it the best chance of working if they have partial services
         recognition.continuous = false;
         recognition.interimResults = false;
         recognition.lang = 'en-US';
 
         setIsListening(true);
 
+        const timeout = setTimeout(() => {
+            try { recognition.stop(); } catch (e) { }
+            setIsListening(false);
+            toast?.error("Voice search timed out (10s).");
+        }, 10000);
+
         recognition.onstart = () => {
             console.log("Voice recognition started");
+            toast?.success("Listening... Speak now", { id: 'mic-toast', duration: 3000 });
         }
 
         recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
+            const transcript = event.results[event.results.length - 1][0].transcript;
             setSearchTerm(transcript);
             navigate(`/shop?search=${transcript}`);
+            clearTimeout(timeout);
             setIsListening(false);
+            try { recognition.stop(); } catch (e) { }
         };
 
         recognition.onerror = (event) => {
             console.error("Voice recognition error", event.error);
+            clearTimeout(timeout);
             setIsListening(false);
+            toast.dismiss('mic-toast');
+
+            if (event.error === 'network') {
+                toast?.error("Network Error: Brave Browser is actively blocking the Voice Service.", { duration: 5000 });
+                setTimeout(() => {
+                    alert("CRITICAL BRAVE FIX REQUIRED:\n\n1. Go to brave://settings/privacy\n2. Turn ON 'Use Google services for push messaging'\n3. You MUST restart Brave fully (close all windows).\n\nIf it still fails, Brave has entirely disabled Speech API on your specific machine. Please use standard Chrome or Edge for Voice Search.");
+                }, 500);
+            } else if (event.error === 'not-allowed') {
+                toast?.error("Microphone access was denied. Please check site permissions.");
+            } else if (event.error !== 'no-speech') {
+                toast?.error(`Mic Error: ${event.error}`);
+            }
         };
 
         recognition.onend = () => {
+            clearTimeout(timeout);
             setIsListening(false);
         };
 
-        recognition.start();
+        try {
+            recognition.start();
+        } catch (e) {
+            clearTimeout(timeout);
+            setIsListening(false);
+            toast?.error("Failed to start microphone.");
+        }
     };
 
 
@@ -85,7 +124,7 @@ export default function Navbar() {
                     </div>
 
                     {/* Center: Logo */}
-                    <div className="flex-1 lg:flex-none flex justify-center lg:absolute lg:left-1/2 lg:-translate-x-1/2">
+                    <div className="flex-1 xl:flex-none flex justify-center xl:absolute xl:left-1/2 xl:-translate-x-1/2">
                         <Link to="/" className="group flex items-center gap-2">
                             <span className="text-4xl font-black italic tracking-tighter text-black transition-all group-hover:blur-[1px]">VARNA.</span>
                         </Link>
@@ -97,15 +136,16 @@ export default function Navbar() {
                         <form onSubmit={handleSearch} className="hidden md:flex relative group items-center bg-gray-50 border-b-2 border-transparent focus-within:border-black transition-all">
                             <input
                                 type="text"
-                                placeholder="SEARCH ORDERS"
-                                className="w-32 focus:w-48 transition-all duration-500 bg-transparent text-black placeholder-gray-400 text-[10px] font-black uppercase tracking-widest px-4 py-2 outline-none italic"
+                                placeholder={isListening ? "LISTENING..." : "SEARCH PRODUCTS..."}
+                                className="w-48 focus:w-56 transition-all duration-500 bg-transparent text-black placeholder-gray-400 text-[10px] font-black uppercase tracking-widest px-4 py-2 outline-none italic"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            <button type="button" onClick={handleVoiceSearch} className={`mr-2 transition-colors ${isListening ? 'text-red-600 animate-pulse' : 'text-gray-400 hover:text-black'}`}>
+                            <button type="button" onClick={handleVoiceSearch} className={`mr-2 flex items-center gap-1 transition-colors ${isListening ? 'text-red-600 animate-pulse' : 'text-gray-400 hover:text-black'}`}>
                                 <Mic size={14} strokeWidth={3} />
+                                {isListening && <span className="text-[8px] font-black uppercase tracking-widest text-red-600">ON</span>}
                             </button>
-                            <button type="submit" className="pr-3 text-gray-400 group-hover:text-black transition-colors">
+                            <button type="submit" className="pr-3 text-gray-400 group-hover:text-black transition-colors" disabled={isListening}>
                                 <Search size={14} strokeWidth={3} />
                             </button>
                         </form>
@@ -155,15 +195,16 @@ export default function Navbar() {
                         <form onSubmit={handleSearch} className="flex relative group items-center bg-gray-50 border-b-2 border-black mb-8">
                             <input
                                 type="text"
-                                placeholder="SEARCH ORDERS"
+                                placeholder={isListening ? "LISTENING..." : "SEARCH PRODUCTS..."}
                                 className="w-full bg-transparent text-black placeholder-gray-400 text-sm font-black uppercase tracking-widest px-4 py-4 outline-none italic"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            <button type="button" onClick={handleVoiceSearch} className={`mr-4 transition-colors ${isListening ? 'text-red-600 animate-pulse' : 'text-gray-400'}`}>
+                            <button type="button" onClick={handleVoiceSearch} className={`mr-4 flex items-center gap-1 transition-colors ${isListening ? 'text-red-600 animate-pulse' : 'text-gray-400'}`}>
                                 <Mic size={20} strokeWidth={3} />
+                                {isListening && <span className="text-[10px] font-black uppercase tracking-widest text-red-600">ON</span>}
                             </button>
-                            <button type="submit" className="pr-4 text-black">
+                            <button type="submit" className="pr-4 text-black" disabled={isListening}>
                                 <Search size={20} strokeWidth={3} />
                             </button>
                         </form>

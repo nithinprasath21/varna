@@ -21,9 +21,21 @@ const getAllProducts = async (req, res) => {
         }
 
         if (search) {
-            query += ` AND (p.title ILIKE $${paramCount} OR p.description ILIKE $${paramCount})`;
-            params.push(`%${search}%`);
-            paramCount++;
+            // Strip punctuation like trailing periods to prevent exact-match breaking
+            const cleanSearch = decodeURIComponent(search).replace(/[.,?!\']/g, '').trim();
+            console.log("CLEANED SEARCH:", cleanSearch);
+            const searchArray = cleanSearch.split(/\s+/).filter(word => word.length > 0);
+
+            if (searchArray.length > 0) {
+                query += ` AND (`;
+                searchArray.forEach((term, index) => {
+                    if (index > 0) query += ` AND `; // All terms must match at least one field
+                    query += `(p.title ILIKE $${paramCount} OR p.description ILIKE $${paramCount} OR a.store_name ILIKE $${paramCount} OR p.category ILIKE $${paramCount})`;
+                    params.push(`%${term}%`);
+                    paramCount++;
+                });
+                query += `)`;
+            }
         }
 
         if (minPrice) {
@@ -39,6 +51,9 @@ const getAllProducts = async (req, res) => {
         }
 
         query += ' ORDER BY p.created_at DESC';
+
+        console.log("SQL:", query);
+        console.log("PARAMS:", params);
 
         const result = await db.query(query, params);
         res.json(result.rows);

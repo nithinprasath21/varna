@@ -31,7 +31,7 @@ const getArtisanCoupons = async (req, res) => {
         const userId = req.userId;
         const artisanRes = await db.query('SELECT id FROM artisans WHERE user_id = $1', [userId]);
         if (artisanRes.rows.length === 0) {
-            return res.status(403).json({ message: 'Not an artisan' });
+            return res.json([]);
         }
         const artisan_id = artisanRes.rows[0].id;
 

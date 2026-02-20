@@ -10,7 +10,9 @@ const generateAiNote = async (req, res) => {
         const addressRes = await db.query('SELECT city, state FROM addresses WHERE user_id = $1 LIMIT 1', [userId]);
         const location = addressRes.rows.length > 0 ? `${addressRes.rows[0].city}, ${addressRes.rows[0].state}` : 'Unknown Location';
 
-        const prompt = `You are a heritage and culture expert. Based on the following information provided by an artisan, write a compelling cultural note about this product, its background, and the artisan's keywords. Present the entire response strictly as bullet points. Do not include any meta-commentary or introductory text.
+        const prompt = `You are a heritage and culture expert. Based on the following information provided by an artisan, write a compelling cultural note about this product, its background, and the artisan's keywords. 
+Present the entire response strictly as bullet-points starting with a hyphen (-). 
+CRITICAL RULE: Do not use any bold text, asterisks (**), or title headers for the bullet points. Just provide straightforward plain text sentences. Do not include any meta-commentary or introductory text.
 
 Product Title: ${title || 'Handcrafted Product'}
 Product Description: ${description || 'Traditional craft'}
@@ -27,7 +29,12 @@ Artisan's Cultural Keywords/Notes: ${cultural_keywords || 'Heritage, tradition, 
             max_tokens: 300
         });
 
-        const generatedNote = aiResponse.data.choices[0].message.content.trim();
+        let generatedNote = aiResponse.data.choices[0].message.content.trim();
+
+        // RegEx scrubbing: Strip out any **Header:** or **Header** patterns just in case the AI ignores the prompt
+        generatedNote = generatedNote.replace(/\*\*(.*?)\*\*(:?)\s*/g, '');
+        generatedNote = generatedNote.replace(/\*\*/g, '');
+
         res.json({ ai_cultural_note: generatedNote });
 
     } catch (err) {
@@ -85,7 +92,12 @@ const getDashboardStats = async (req, res) => {
         const artisanRes = await db.query('SELECT * FROM artisans WHERE user_id = $1', [userId]);
 
         if (artisanRes.rows.length === 0) {
-            return res.status(404).json({ message: 'Artisan profile not found' });
+            return res.json({
+                productCount: 0,
+                totalSales: 0,
+                recentOrders: [],
+                charts: { moneyFlow: [], bestSellers: [], stockHealth: [], marketReach: [], categoryProfit: [] }
+            });
         }
         const artisanId = artisanRes.rows[0].id;
 
@@ -135,16 +147,16 @@ const getDashboardStats = async (req, res) => {
             ORDER BY stock_qty ASC
         `, [artisanId]);
 
-        // 4. Market Reach (Geography - Orders by City)
+        // 4. Market Reach (Orders Grouped By City)
         const marketReachRes = await db.query(`
             SELECT 
-                (shipping_address->>'city') as city,
-                COUNT(*)::int as order_count
-            FROM orders o
-            JOIN order_items oi ON o.id = oi.order_id
+                (o.shipping_address->>'city') as city,
+                COUNT(DISTINCT o.id) as order_count
+            FROM order_items oi
+            JOIN orders o ON oi.order_id = o.id
             JOIN products p ON oi.product_id = p.id
-            WHERE p.artisan_id = $1
-            GROUP BY city
+            WHERE p.artisan_id = $1 AND o.shipping_address IS NOT NULL
+            GROUP BY (o.shipping_address->>'city')
             ORDER BY order_count DESC
         `, [artisanId]);
 
@@ -332,7 +344,7 @@ const deleteProduct = async (req, res) => {
 const getProfile = async (req, res) => {
     try {
         const userId = req.userId;
-        const result = await db.query(`
+        let result = await db.query(`
             SELECT a.*, u.email, u.phone_number, u.full_name
             FROM artisans a
             JOIN users u ON a.user_id = u.id
@@ -340,7 +352,14 @@ const getProfile = async (req, res) => {
         `, [userId]);
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ message: 'Artisan profile not found' });
+            // Auto-create missing artisan record for newly registered users
+            await db.query('INSERT INTO artisans (user_id) VALUES ($1)', [userId]);
+            result = await db.query(`
+                SELECT a.*, u.email, u.phone_number, u.full_name
+                FROM artisans a
+                JOIN users u ON a.user_id = u.id
+                WHERE a.user_id = $1
+            `, [userId]);
         }
         res.json(result.rows[0]);
     } catch (err) {

@@ -69,7 +69,7 @@ const getArtisanReviews = async (req, res) => {
         // Find artisan_id for this user
         const artRes = await db.query('SELECT id FROM artisans WHERE user_id = $1', [user_id]);
         if (artRes.rows.length === 0) {
-            return res.status(403).json({ message: 'Not an artisan' });
+            return res.json([]);
         }
         const artisan_id = artRes.rows[0].id;
 
