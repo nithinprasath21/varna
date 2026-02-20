@@ -12,4 +12,7 @@ router.delete('/products/:id', verifyToken, verifyRole(['ARTISAN']), controller.
 router.get('/profile', verifyToken, verifyRole(['ARTISAN']), controller.getProfile);
 router.put('/profile', verifyToken, verifyRole(['ARTISAN']), controller.updateProfile);
 
+router.post('/generate-ai-note', verifyToken, verifyRole(['ARTISAN']), controller.generateAiNote);
+router.post('/products/:id/improve', verifyToken, verifyRole(['ARTISAN']), controller.improveProduct);
+
 module.exports = router;

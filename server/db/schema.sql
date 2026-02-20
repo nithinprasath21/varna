@@ -70,6 +70,10 @@ CREATE TABLE products (
     is_premium BOOLEAN DEFAULT FALSE,
     technical_details JSONB DEFAULT '{}',
     brand VARCHAR(100),
+    cultural_keywords TEXT,
+    ai_cultural_note TEXT,
+    ai_review_summary TEXT,
+    ai_improvement_suggestions TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

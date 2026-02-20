@@ -36,6 +36,13 @@ git clone https://github.com/nithinprasath21/varna.git
 cd varna
 ```
 
+OR for latest:
+
+```bash
+git clone https://github.com/praneshjuly47/varna.git
+cd varna
+```
+
 ### Step 2: Database Initialization (PostgreSQL)
 
 **Windows (PowerShell/CMD):**
@@ -66,7 +73,31 @@ cd varna
 
 ---
 
-### Step 3: Backend Configuration (Server)
+---
+
+### Step 3: AI Model Setup (Koboldcpp)
+
+Varna uses a completely offline AI model (Qwen 2.5 Coder 3B Instruct) for generating cultural notes and product suggestions securely.
+
+1. **Download Koboldcpp (AI Engine):**
+   - Head over to the [Koboldcpp GitHub Releases page](https://github.com/LostRuins/koboldcpp/releases).
+   - Download the latest executable (e.g., `koboldcpp.exe` for Windows).
+
+2. **Download the GGUF Model:**
+   - Visit the official Hugging Face repository: [Qwen2.5-Coder-3B-Instruct-GGUF](https://huggingface.co/Qwen/Qwen2.5-Coder-3B-Instruct-GGUF).
+   - Click over to the "Files and versions" tab.
+   - Download the model file named `qwen2.5-coder-3b-instruct-q4_k_m.gguf`.
+   - Place this file inside a `model/` directory in the root of your project (e.g., `varna/model/`). *Note: The `.gguf` file and `model/` directory are already listed in `.gitignore`.*
+
+3. **Launch the AI Instance:**
+   - Open `koboldcpp.exe`.
+   - Browse and select your downloaded `qwen2.5-coder-3b-instruct-q4_k_m.gguf` model.
+   - Adjust the port to **5001** so it properly hooks into Varna.
+   - Click "Launch". Wait for it to confirm the server is running at `http://localhost:5001`.
+
+---
+
+### Step 4: Backend Configuration (Server)
 
 1. Navigate to the server folder:
    ```bash
@@ -88,7 +119,6 @@ cd varna
      DATABASE_URL=postgresql://postgres:YOUR_DB_PASSWORD@localhost:5432/varna_db
      JWT_SECRET=your_secure_jwt_secret
      NODE_ENV=development
-     GEMINI_API_KEY=your_working_gemini_key
      ```
 4. Start the server:
    ```bash
@@ -97,7 +127,7 @@ cd varna
 
 ---
 
-### Step 4: Frontend Configuration (Client)
+### Step 5: Frontend Configuration (Client)
 
 1. Navigate to the client folder:
    ```bash

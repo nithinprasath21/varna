@@ -15,6 +15,10 @@ dist-ssr
 server/.env
 client/.env
 
+# AI Models (Do not push to remote)
+model/
+*.gguf
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

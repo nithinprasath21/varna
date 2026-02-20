@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { Star, ShieldCheck, Truck, RotateCcw, ArrowRight } from 'lucide-react';
+import { Star, ShieldCheck, Truck, RotateCcw, ArrowRight, Cpu } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function ProductDetails() {
@@ -23,6 +23,7 @@ export default function ProductDetails() {
     // Review Form State
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [reviewRating, setReviewRating] = useState(5);
+    const [showAiNote, setShowAiNote] = useState(false);
     const [reviewTitle, setReviewTitle] = useState('');
     const [reviewComment, setReviewComment] = useState('');
 
@@ -224,6 +225,27 @@ export default function ProductDetails() {
                                 {product.description}
                             </p>
                         </div>
+                        {product.ai_cultural_note && (
+                            <div className="pt-6">
+                                <button
+                                    onClick={() => setShowAiNote(!showAiNote)}
+                                    className="flex items-center gap-2 bg-yellow-50 text-black border border-primary px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-primary transition-all shadow-[4px_4px_0px_0px_rgba(255,210,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+                                >
+                                    <Cpu size={14} /> AI Cultural Note
+                                </button>
+                                {showAiNote && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        className="mt-4 p-6 bg-white border-2 border-primary"
+                                    >
+                                        <p className="text-sm leading-relaxed text-gray-800 whitespace-pre-wrap font-medium">
+                                            {product.ai_cultural_note}
+                                        </p>
+                                    </motion.div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -296,6 +318,18 @@ export default function ProductDetails() {
                         </div>
 
                         <div className="lg:col-span-8 space-y-16">
+                            {product.ai_review_summary && (
+                                <div className="bg-yellow-50 p-6 border-l-4 border-primary">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <Cpu size={18} className="text-primary" />
+                                        <h3 className="text-[12px] font-black uppercase tracking-[0.3em] italic">AI Review Summary</h3>
+                                    </div>
+                                    <p className="text-sm leading-relaxed text-gray-800 whitespace-pre-wrap font-medium">
+                                        {product.ai_review_summary}
+                                    </p>
+                                </div>
+                            )}
+
                             {reviews && reviews.length > 0 ? (
                                 reviews.map(review => (
                                     <div key={review.id} className="relative pl-10">

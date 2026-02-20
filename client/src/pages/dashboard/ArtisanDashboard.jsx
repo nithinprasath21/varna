@@ -32,6 +32,8 @@ export default function ArtisanDashboard() {
     const [isEditing, setIsEditing] = useState(false);
     const [editId, setEditId] = useState(null);
     const [activeTab, setActiveTab] = useState('inventory'); // dashboard, inventory, operations, community, store
+    const [aiImprovements, setAiImprovements] = useState({});
+    const [loadingAiProduct, setLoadingAiProduct] = useState(null);
 
     // Reviews & Coupons State
     const [reviews, setReviews] = useState([]);
@@ -60,7 +62,9 @@ export default function ArtisanDashboard() {
         stock_qty: '',
         category: 'Pottery',
         is_premium: false,
-        image_url: ''
+        image_url: '',
+        cultural_keywords: '',
+        ai_cultural_note: ''
     });
 
     // Image Upload State
@@ -113,7 +117,9 @@ export default function ArtisanDashboard() {
             stock_qty: product.stock_qty,
             category: product.category,
             is_premium: product.is_premium || false,
-            image_url: product.image_url || ''
+            image_url: product.image_url || '',
+            cultural_keywords: product.cultural_keywords || '',
+            ai_cultural_note: product.ai_cultural_note || ''
         });
         setEditId(product.id);
         setIsEditing(true);
@@ -214,8 +220,45 @@ export default function ArtisanDashboard() {
         }
     };
 
+    const handleGenerateAiNote = async () => {
+        if (!newItem.cultural_keywords) {
+            toast.error("Please enter some cultural keywords first.");
+            return;
+        }
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.post('http://localhost:5000/artisan/generate-ai-note', {
+                title: newItem.title,
+                description: newItem.description,
+                cultural_keywords: newItem.cultural_keywords
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setNewItem(prev => ({ ...prev, ai_cultural_note: res.data.ai_cultural_note }));
+            toast.success("AI Cultural Note framed successfully!");
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed to generate note");
+        }
+    };
+
+    const handleGenerateImprovement = async (productId) => {
+        setLoadingAiProduct(productId);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.post(`http://localhost:5000/artisan/products/${productId}/improve`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setAiImprovements(prev => ({ ...prev, [productId]: res.data.ai_improvement_suggestions }));
+            toast.success("AI Suggestions received!");
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed to generate suggestions.");
+        } finally {
+            setLoadingAiProduct(null);
+        }
+    };
+
     const resetForm = () => {
-        setNewItem({ title: '', description: '', base_price: '', sale_price: '', stock_qty: '', category: 'Pottery', is_premium: false, image_url: '' });
+        setNewItem({ title: '', description: '', base_price: '', sale_price: '', stock_qty: '', category: 'Pottery', is_premium: false, image_url: '', cultural_keywords: '', ai_cultural_note: '' });
         setShowAddForm(false);
         setIsEditing(false);
         setEditId(null);
@@ -887,6 +930,37 @@ export default function ArtisanDashboard() {
                                                 />
                                             </div>
 
+                                            <div className="bg-yellow-50 p-6 border-l-4 border-primary">
+                                                <label className="block text-[10px] font-black uppercase tracking-widest text-black mb-2 flex items-center gap-2">
+                                                    <Cpu size={14} className="text-primary" /> AI Cultural Notes
+                                                </label>
+                                                <p className="text-xs text-gray-500 mb-4 font-medium">Type in your cultural keywords or unfinished sentences related to the cultural background of the products.</p>
+                                                <textarea
+                                                    className="w-full p-4 bg-white border border-gray-200 focus:ring-2 focus:ring-primary text-sm font-medium transition-all h-20 mb-4 placeholder-gray-300"
+                                                    placeholder="E.g., Heritage handloom, 200 year old weaving style, passed down through generations..."
+                                                    value={newItem.cultural_keywords}
+                                                    onChange={e => setNewItem({ ...newItem, cultural_keywords: e.target.value })}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={handleGenerateAiNote}
+                                                    className="bg-black text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-black transition-all"
+                                                >
+                                                    Frame AI Cultural Note
+                                                </button>
+
+                                                {newItem.ai_cultural_note && (
+                                                    <div className="mt-6 pt-4 border-t border-gray-200">
+                                                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Generated Note (Editable)</label>
+                                                        <textarea
+                                                            className="w-full p-4 bg-white border border-gray-200 focus:ring-2 focus:ring-primary text-sm font-medium transition-all h-32"
+                                                            value={newItem.ai_cultural_note}
+                                                            onChange={e => setNewItem({ ...newItem, ai_cultural_note: e.target.value })}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+
                                             <div className="flex items-center gap-4 p-5 bg-black text-white">
                                                 <input
                                                     type="checkbox"
@@ -1102,6 +1176,45 @@ export default function ArtisanDashboard() {
                                 <div className="bg-primary w-14 h-14 flex items-center justify-center border-2 border-black rotate-12">
                                     <MessageSquare size={24} className="-rotate-12" />
                                 </div>
+                            </div>
+                        </div>
+
+                        <div className="mb-12">
+                            <div className="flex items-center gap-2 mb-6">
+                                <Cpu size={24} className="text-primary" />
+                                <h3 className="text-2xl font-black italic uppercase tracking-tighter">Improve Products with AI</h3>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {Array.from(new Set(reviews.map(r => r.product_id))).map(productId => {
+                                    const productReviews = reviews.filter(r => r.product_id === productId);
+                                    const title = productReviews[0].product_title;
+                                    const localAiSuggestion = aiImprovements[productId] || products.find(p => p.id === productId)?.ai_improvement_suggestions;
+
+                                    return (
+                                        <div key={productId} className="bg-yellow-50 border-2 border-primary p-6 shadow-[4px_4px_0px_0px_rgba(255,210,0,1)]">
+                                            <div className="flex justify-between flex-wrap gap-4 items-center mb-4">
+                                                <h4 className="text-[12px] font-black uppercase tracking-widest truncate max-w-[200px]">{title}</h4>
+                                                <button
+                                                    onClick={() => handleGenerateImprovement(productId)}
+                                                    disabled={loadingAiProduct === productId}
+                                                    className="bg-black text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-black transition-all flex items-center gap-2 disabled:opacity-50"
+                                                >
+                                                    <Cpu size={12} />
+                                                    {loadingAiProduct === productId ? 'GENERATING...' : 'ANALYZE REVIEWS'}
+                                                </button>
+                                            </div>
+                                            {localAiSuggestion ? (
+                                                <div className="text-xs leading-relaxed text-gray-800 font-medium whitespace-pre-wrap border-t border-primary/50 pt-4 max-h-48 overflow-y-auto custom-scrollbar">
+                                                    {localAiSuggestion}
+                                                </div>
+                                            ) : (
+                                                <p className="text-[10px] text-gray-500 italic mt-2 uppercase tracking-wide">
+                                                    {productReviews.length} REVIEWS FOUND. ANALYZE TO GET AI SUGGESTIONS ON QUALITY, PRICING, & MORE.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )
+                                })}
                             </div>
                         </div>
 

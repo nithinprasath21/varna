@@ -1,4 +1,5 @@
 const db = require('../db');
+const axios = require('axios');
 
 const addReview = async (req, res) => {
     try {
@@ -18,6 +19,24 @@ const addReview = async (req, res) => {
             'INSERT INTO reviews (product_id, user_id, rating, title, comment) VALUES ($1, $2, $3, $4, $5) RETURNING *',
             [product_id, user_id, rating, title, comment]
         );
+
+        // --- Trigger AI Review Summary Update Background/Sync ---
+        try {
+            const allReviews = await db.query('SELECT rating, title, comment FROM reviews WHERE product_id = $1 ORDER BY created_at DESC', [product_id]);
+            const reviewsText = allReviews.rows.map(r => `Rating: ${r.rating}/5. Title: ${r.title}. Comment: ${r.comment}`).join('\n');
+            const prompt = `You are a helpful e-commerce assistant. Based on the following customer reviews for a product, generate a concise summary of the overall sentiment, highlighting key benefits and any recurring complaints. Output the summary strictly as a short list of bullet points.\n\nReviews:\n${reviewsText}`;
+
+            const aiResponse = await axios.post('http://localhost:5001/v1/chat/completions', {
+                model: "qwen2.5-coder-3b-innstruct",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.5,
+                max_tokens: 300
+            });
+            const summary = aiResponse.data.choices[0].message.content.trim();
+            await db.query('UPDATE products SET ai_review_summary = $1 WHERE id = $2', [summary, product_id]);
+        } catch (aiErr) {
+            console.error("AI Summary generation failed on review submission:", aiErr?.message);
+        }
 
         res.status(201).json(result.rows[0]);
     } catch (err) {

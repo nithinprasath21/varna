@@ -1,4 +1,83 @@
 const db = require('../db');
+const axios = require('axios');
+
+const generateAiNote = async (req, res) => {
+    try {
+        const { title, description, cultural_keywords } = req.body;
+        const userId = req.userId;
+
+        // Try to fetch location from addresses
+        const addressRes = await db.query('SELECT city, state FROM addresses WHERE user_id = $1 LIMIT 1', [userId]);
+        const location = addressRes.rows.length > 0 ? `${addressRes.rows[0].city}, ${addressRes.rows[0].state}` : 'Unknown Location';
+
+        const prompt = `You are a heritage and culture expert. Based on the following information provided by an artisan, write a compelling cultural note about this product, its background, and the artisan's keywords. Present the entire response strictly as bullet points. Do not include any meta-commentary or introductory text.
+
+Product Title: ${title || 'Handcrafted Product'}
+Product Description: ${description || 'Traditional craft'}
+Artisan Location: ${location}
+Artisan's Cultural Keywords/Notes: ${cultural_keywords || 'Heritage, tradition, craft'}`;
+
+        // Call local Koboldcpp API (OpenAI compatible)
+        const aiResponse = await axios.post('http://localhost:5001/v1/chat/completions', {
+            model: "qwen2.5-coder-3b-innstruct", // Default for koboldcpp
+            messages: [
+                { role: "user", content: prompt }
+            ],
+            temperature: 0.7,
+            max_tokens: 300
+        });
+
+        const generatedNote = aiResponse.data.choices[0].message.content.trim();
+        res.json({ ai_cultural_note: generatedNote });
+
+    } catch (err) {
+        console.error("AI Generation Error:", err?.message || err);
+        res.status(500).json({ message: 'Failed to generate AI cultural note. Make sure koboldcpp is running on port 5001.' });
+    }
+};
+
+const improveProduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.userId;
+
+        // Verify artisan owns this product
+        const artisanRes = await db.query('SELECT id FROM artisans WHERE user_id = $1', [userId]);
+        if (artisanRes.rows.length === 0) return res.status(403).json({ message: 'Not an artisan' });
+        const artisanId = artisanRes.rows[0].id;
+
+        const productRes = await db.query('SELECT id, title FROM products WHERE id = $1 AND artisan_id = $2', [id, artisanId]);
+        if (productRes.rows.length === 0) return res.status(404).json({ message: 'Product not found' });
+
+        const reviewsRes = await db.query('SELECT rating, title, comment FROM reviews WHERE product_id = $1 ORDER BY created_at DESC', [id]);
+        if (reviewsRes.rows.length === 0) return res.status(400).json({ message: 'No reviews available to generate improvements.' });
+
+        const reviewsText = reviewsRes.rows.map(r => `Rating: ${r.rating}/5. Title: ${r.title}. Comment: ${r.comment}`).join('\n');
+
+        const prompt = `You are an expert artisan business consultant. I will give you a list of recent customer reviews for a product called "${productRes.rows[0].title}". 
+Your task is to analyze these reviews and provide strictly bullet point suggestions to the artisan on how to improve this product. 
+Focus on product quality, pricing, features, or messaging based only on the complaints and benefits mentioned in the reviews. Do not include any introductory text. Break down the response into simple bullet points.
+
+Reviews:
+${reviewsText}`;
+
+        const aiResponse = await axios.post('http://localhost:5001/v1/chat/completions', {
+            model: "qwen2.5-coder-3b-innstruct",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.7,
+            max_tokens: 350
+        });
+
+        const suggestions = aiResponse.data.choices[0].message.content.trim();
+        await db.query('UPDATE products SET ai_improvement_suggestions = $1 WHERE id = $2', [suggestions, id]);
+
+        res.json({ ai_improvement_suggestions: suggestions });
+
+    } catch (err) {
+        console.error("AI Improvement Error:", err?.message || err);
+        res.status(500).json({ message: 'Failed to generate AI improvement suggestions. Make sure koboldcpp is running on port 5001.' });
+    }
+};
 
 const getDashboardStats = async (req, res) => {
     try {
@@ -132,7 +211,7 @@ const getDashboardStats = async (req, res) => {
 
 const addProduct = async (req, res) => {
     try {
-        const { title, description, base_price, sale_price, stock_qty, category, is_premium, image_url } = req.body;
+        const { title, description, base_price, sale_price, stock_qty, category, is_premium, image_url, cultural_keywords, ai_cultural_note } = req.body;
         const userId = req.userId;
 
         if (sale_price && Number(sale_price) > Number(base_price)) {
@@ -153,8 +232,8 @@ const addProduct = async (req, res) => {
         }
 
         const newProduct = await db.query(
-            'INSERT INTO products (artisan_id, title, description, base_price, sale_price, stock_qty, category, is_premium) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-            [artisanId, title, description, base_price, sale_price || null, stock_qty, category, is_premium || false]
+            'INSERT INTO products (artisan_id, title, description, base_price, sale_price, stock_qty, category, is_premium, cultural_keywords, ai_cultural_note) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
+            [artisanId, title, description, base_price, sale_price || null, stock_qty, category, is_premium || false, cultural_keywords || '', ai_cultural_note || '']
         );
 
         const productId = newProduct.rows[0].id;
@@ -200,7 +279,7 @@ const getProducts = async (req, res) => {
 const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, description, base_price, sale_price, stock_qty, category, is_premium, image_url } = req.body;
+        const { title, description, base_price, sale_price, stock_qty, category, is_premium, image_url, cultural_keywords, ai_cultural_note } = req.body;
 
         if (sale_price && Number(sale_price) > Number(base_price)) {
             return res.status(400).json({ message: 'Sale price cannot be greater than base price (MRP)' });
@@ -208,9 +287,9 @@ const updateProduct = async (req, res) => {
 
         const updatedProduct = await db.query(
             `UPDATE products 
-             SET title = $1, description = $2, base_price = $3, sale_price = $4, stock_qty = $5, category = $6, is_premium = $7
-             WHERE id = $8 RETURNING *`,
-            [title, description, base_price, sale_price || null, stock_qty, category, is_premium || false, id]
+             SET title = $1, description = $2, base_price = $3, sale_price = $4, stock_qty = $5, category = $6, is_premium = $7, cultural_keywords = $8, ai_cultural_note = $9
+             WHERE id = $10 RETURNING *`,
+            [title, description, base_price, sale_price || null, stock_qty, category, is_premium || false, cultural_keywords || '', ai_cultural_note || '', id]
         );
 
         if (updatedProduct.rows.length === 0) {
@@ -308,5 +387,5 @@ const updateProfile = async (req, res) => {
 
 module.exports = {
     getDashboardStats, addProduct, getProducts,
-    updateProduct, deleteProduct, getProfile, updateProfile
+    updateProduct, deleteProduct, getProfile, updateProfile, generateAiNote, improveProduct
 };
