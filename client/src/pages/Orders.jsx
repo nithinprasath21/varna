@@ -30,7 +30,7 @@ export default function Orders() {
         <div className="min-h-screen bg-white flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
                 <div className="w-12 h-12 border-4 border-black border-t-primary animate-spin" />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] italic">Retreiving Records</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] italic">Loading Orders...</span>
             </div>
         </div>
     );
@@ -40,22 +40,22 @@ export default function Orders() {
             <div className="max-w-7xl mx-auto">
                 <div className="mb-16 flex flex-col md:flex-row md:items-baseline justify-between border-b-2 border-black pb-8 gap-8">
                     <div>
-                        <h1 className="text-6xl font-black italic uppercase tracking-tighter">Acquisitions</h1>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic mt-2">Historical log of authenticated masterpieces</p>
+                        <h1 className="text-6xl font-black italic uppercase tracking-tighter">My Orders</h1>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic mt-2">Your order history</p>
                     </div>
 
                     <div className="relative group">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-black transition-colors" size={16} />
                         <input
                             type="text"
-                            placeholder="SEARCH ARCHIVE"
+                            placeholder="SEARCH ORDERS"
                             className="bg-gray-50 border-2 border-transparent focus:border-black pl-12 pr-6 py-3 text-xs font-black uppercase outline-none w-full md:w-80 transition-all italic"
                         />
                     </div>
                 </div>
 
                 <div className="flex gap-10 border-b border-gray-100 mb-12 overflow-x-auto pb-1 scrollbar-hide">
-                    {['ALL LOGS', 'IN TRANSIT', 'SUCCESSFUL', 'VOIDED'].map((tab, idx) => (
+                    {['ALL ORDERS', 'IN TRANSIT', 'SUCCESSFUL', 'CANCELLED'].map((tab, idx) => (
                         <button key={tab} className={`pb-4 text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${idx === 0 ? 'border-b-4 border-primary text-black' : 'text-gray-300 hover:text-black'}`}>
                             {tab}
                         </button>
@@ -64,9 +64,9 @@ export default function Orders() {
 
                 {orders.length === 0 ? (
                     <div className="text-center py-40 border-4 border-dashed border-gray-100 italic">
-                        <p className="text-xl font-black uppercase tracking-tighter text-gray-200 mb-8">No records found in the vault.</p>
+                        <p className="text-xl font-black uppercase tracking-tighter text-gray-200 mb-8">No orders found.</p>
                         <Link to="/shop" className="text-xs font-black uppercase tracking-[0.3em] bg-black text-white px-8 py-4 hover:bg-primary hover:text-black transition-all">
-                            EXPLORE COLLECTION
+                            SHOP NOW
                         </Link>
                     </div>
                 ) : (
@@ -89,22 +89,22 @@ export default function Orders() {
                                         </div>
                                         <div className="flex gap-12">
                                             <div className="space-y-1">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 italic leading-none"><Calendar size={10} /> ACQUISITION DATE</p>
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 italic leading-none"><Calendar size={10} /> ORDER DATE</p>
                                                 <p className="text-sm font-black italic">{new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}</p>
                                             </div>
                                             <div className="space-y-1">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 italic leading-none"><Package size={10} /> SETTLEMENT</p>
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 italic leading-none"><Package size={10} /> TOTAL AMOUNT</p>
                                                 <p className="text-sm font-black italic">₹{Number(order.total_amount).toLocaleString()}</p>
                                             </div>
                                             <div className="space-y-1 hidden sm:block">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 italic leading-none"><MapPin size={10} /> RECIPIENT</p>
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 italic leading-none"><MapPin size={10} /> DELIVERED TO</p>
                                                 <p className="text-sm font-black italic uppercase truncate max-w-[150px]">{order.shipping_address?.full_name || 'AUTHENTICATED USER'}</p>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="flex gap-4">
-                                        <button className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors underline underline-offset-4 italic">DOWNLOAD LOG (PDF)</button>
-                                        <button className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors underline underline-offset-4 italic">CERTIFICATE</button>
+                                        <button className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors underline underline-offset-4 italic">Download Invoice (PDF)</button>
+                                        <button className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors underline underline-offset-4 italic">VIEW VIEW CERTIFICATE</button>
                                     </div>
                                 </div>
 
@@ -130,7 +130,7 @@ export default function Orders() {
 
                                             <div className="flex flex-wrap gap-4 justify-center">
                                                 <Link to={`/product/${item.product_id}`} className="bg-white text-black px-6 py-3 text-[10px] font-black uppercase tracking-widest group-hover/item:bg-primary transition-all italic border-2 border-black">
-                                                    EXPLORE ITEM
+                                                    VIEW PRODUCT
                                                 </Link>
                                                 <button className="bg-black text-white px-6 py-3 text-[10px] font-black uppercase tracking-widest group-hover/item:bg-white group-hover/item:text-black transition-all italic border-2 border-transparent group-hover/item:border-white">
                                                     BUY AGAIN
@@ -144,10 +144,10 @@ export default function Orders() {
                                 <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
                                     <div className="flex items-center gap-2">
                                         <div className={`w-2 h-2 rounded-full ${order.status === 'DELIVERED' ? 'bg-green-500' : 'bg-primary'}`} />
-                                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 italic">LOG STATUS: {order.status === 'DELIVERED' ? 'TRANSACTION COMPLETE' : 'IN PROGRESS'}</span>
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 italic">Order Status: {order.status === 'DELIVERED' ? 'DELIVERED' : 'IN PROGRESS'}</span>
                                     </div>
                                     <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-black hover:bg-black hover:text-white px-4 py-2 transition-all italic">
-                                        TRACE SHIPMENT <ChevronRight size={14} />
+                                        TRACK ORDER <ChevronRight size={14} />
                                     </button>
                                 </div>
                             </motion.div>

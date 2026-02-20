@@ -38,13 +38,13 @@ export default function Register() {
             >
                 <div className="mb-12 text-center">
                     <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-2">Register / 02</h2>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Build your digital identity</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Create your account</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="relative group">
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Personal / Full Name</label>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Full Name</label>
                             <input
                                 type="text"
                                 name="full_name"
@@ -56,7 +56,7 @@ export default function Register() {
                             />
                         </div>
                         <div className="relative group">
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Contact / Email</label>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Email Address</label>
                             <input
                                 type="email"
                                 name="email"
@@ -71,7 +71,7 @@ export default function Register() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="relative group">
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Telecom / Mobile</label>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Mobile Number</label>
                             <input
                                 type="tel"
                                 name="phone_number"
@@ -83,7 +83,7 @@ export default function Register() {
                             />
                         </div>
                         <div className="relative group">
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Security / Token</label>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Password</label>
                             <input
                                 type="password"
                                 name="password"
@@ -97,7 +97,7 @@ export default function Register() {
                     </div>
 
                     <div className="relative group pt-4">
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 italic">Identity Classification</label>
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 italic">I am a</label>
                         <div className="flex flex-wrap gap-4">
                             {['CUSTOMER', 'ARTISAN', 'NGO'].map((role) => (
                                 <button
@@ -117,20 +117,20 @@ export default function Register() {
                             type="submit"
                             className="w-full bg-primary text-black font-black italic uppercase tracking-[0.2em] py-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
                         >
-                            Establish Identity
+                            Sign Up
                         </button>
                     </div>
                 </form>
 
                 <div className="mt-12 pt-8 border-t border-gray-100 flex flex-col gap-4 text-center">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        Already have an identity?
+                        Already have an account?
                     </p>
                     <Link
                         to="/auth/login"
                         className="text-xs font-black uppercase tracking-[0.2em] hover:text-primary transition-colors border-2 border-black py-3"
                     >
-                        Access Studio
+                        LOG IN
                     </Link>
                 </div>
             </motion.div>

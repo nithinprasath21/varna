@@ -64,13 +64,13 @@ export default function Navbar() {
             {/* Top Announcement Banner */}
             <div className="bg-primary py-2.5 text-center relative overflow-hidden">
                 <div className="flex justify-center items-center gap-12 text-[9px] font-black uppercase tracking-[0.3em] text-black italic animate-marquee">
-                    <span className="whitespace-nowrap">AUTHENTIC CRAFT LEDGER</span>
+                    <span className="whitespace-nowrap">100% AUTHENTIC PRODUCTS</span>
                     <span className="whitespace-nowrap">•</span>
-                    <span className="whitespace-nowrap">FREE SHIPPING ON MASTERPIECES</span>
+                    <span className="whitespace-nowrap">FREE SHIPPING ON ALL ORDERS</span>
                     <span className="whitespace-nowrap">•</span>
-                    <span className="whitespace-nowrap">DIRECT-FROM-ARTISAN PROTOCOL</span>
+                    <span className="whitespace-nowrap">DIRECTLY FROM ARTISANS</span>
                     <span className="whitespace-nowrap">•</span>
-                    <span className="whitespace-nowrap">ESTABLISHED MMXXIV VARNA</span>
+                    <span className="whitespace-nowrap">EST. 2024 VARNA</span>
                 </div>
             </div>
 
@@ -78,7 +78,7 @@ export default function Navbar() {
                 <div className="max-w-7xl mx-auto flex items-center justify-between px-8">
                     {/* Left: Nav Links */}
                     <div className="hidden lg:flex items-center gap-10 font-black text-[10px] uppercase tracking-[0.25em] italic">
-                        <Link to="/shop" className="hover:text-primary transition-colors border-b-2 border-transparent hover:border-black pb-1">COLLECTION</Link>
+                        <Link to="/shop" className="hover:text-primary transition-colors border-b-2 border-transparent hover:border-black pb-1">SHOP</Link>
                         <Link to="/shop?category=Pottery" className="hover:text-primary transition-colors border-b-2 border-transparent hover:border-black pb-1">POTTERY</Link>
                         <Link to="/shop?category=Textile" className="hover:text-primary transition-colors border-b-2 border-transparent hover:border-black pb-1">TEXTILES</Link>
                         <Link to="/shop?category=Decor" className="hover:text-primary transition-colors border-b-2 border-transparent hover:border-black pb-1">DECOR</Link>
@@ -97,7 +97,7 @@ export default function Navbar() {
                         <form onSubmit={handleSearch} className="hidden md:flex relative group items-center bg-gray-50 border-b-2 border-transparent focus-within:border-black transition-all">
                             <input
                                 type="text"
-                                placeholder="SEARCH ARCHIVE"
+                                placeholder="SEARCH ORDERS"
                                 className="w-32 focus:w-48 transition-all duration-500 bg-transparent text-black placeholder-gray-400 text-[10px] font-black uppercase tracking-widest px-4 py-2 outline-none italic"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -115,7 +115,7 @@ export default function Navbar() {
                             <Link to={user ? (user.role === 'CUSTOMER' ? "/profile" : "/dashboard") : "/auth/login"} className="flex items-center gap-2 group">
                                 <User size={20} strokeWidth={2.5} className="group-hover:text-primary transition-colors" />
                                 <span className="hidden sm:block text-[10px] font-black uppercase tracking-widest italic pt-1">
-                                    {user ? (user.full_name?.split(' ')[0] || 'IDENTIFIED') : 'ACCESS'}
+                                    {user ? (user.full_name?.split(' ')[0] || 'IDENTIFIED') : 'LOGIN'}
                                 </span>
                             </Link>
 
@@ -127,7 +127,7 @@ export default function Navbar() {
                                         {cartItems.length}
                                     </span>
                                 )}
-                                <span className="hidden sm:block text-[10px] font-black uppercase tracking-widest italic pt-1">BAG</span>
+                                <span className="hidden sm:block text-[10px] font-black uppercase tracking-widest italic pt-1">CART</span>
                             </Link>
 
                             {user && (
@@ -155,7 +155,7 @@ export default function Navbar() {
                         <form onSubmit={handleSearch} className="flex relative group items-center bg-gray-50 border-b-2 border-black mb-8">
                             <input
                                 type="text"
-                                placeholder="SEARCH ARCHIVE"
+                                placeholder="SEARCH ORDERS"
                                 className="w-full bg-transparent text-black placeholder-gray-400 text-sm font-black uppercase tracking-widest px-4 py-4 outline-none italic"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -168,14 +168,14 @@ export default function Navbar() {
                             </button>
                         </form>
 
-                        <Link to="/shop" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-primary transition-colors">COLLECTION</Link>
+                        <Link to="/shop" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-primary transition-colors">SHOP</Link>
                         <Link to="/shop?category=Pottery" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-primary transition-colors">POTTERY</Link>
                         <Link to="/shop?category=Textile" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-primary transition-colors">TEXTILES</Link>
                         <Link to="/shop?category=Decor" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-primary transition-colors">DECOR</Link>
 
                         {user && (
                             <button onClick={() => { logout(); setIsMobileMenuOpen(false); }} className="text-left text-gray-400 hover:text-red-600 transition-colors mt-8 text-sm tracking-widest">
-                                DISCONNECT SESSION (LOGOUT)
+                                LOGOUT
                             </button>
                         )}
                     </div>

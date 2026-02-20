@@ -33,7 +33,7 @@ export default function Home() {
             <div className="py-6 px-4">
                 <h2 className="text-xl font-black italic uppercase tracking-tighter text-black mb-2">{title}</h2>
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 group-hover:text-primary transition-colors flex items-center gap-2 italic">
-                    {linkText || 'EXPLORE COLLECTION'} <ArrowRight size={12} strokeWidth={3} />
+                    {linkText || 'SHOP NOW'} <ArrowRight size={12} strokeWidth={3} />
                 </span>
             </div>
         </div>
@@ -63,7 +63,7 @@ export default function Home() {
                                 <Disc size={48} className="text-gray-200 animate-spin-slow" />
                             )}
                             {item.sale_price && (
-                                <div className="absolute top-0 right-0 bg-primary text-black text-[10px] font-black px-4 py-2 uppercase italic">PRICE ADJUSTED</div>
+                                <div className="absolute top-0 right-0 bg-primary text-black text-[10px] font-black px-4 py-2 uppercase italic">SALE</div>
                             )}
                         </div>
                         <div className="space-y-3">
@@ -100,17 +100,17 @@ export default function Home() {
                         transition={{ duration: 1 }}
                     >
                         <h1 className="text-white text-7xl md:text-[12rem] font-black italic leading-[0.8] tracking-tighter mb-8">
-                            VARNA<br /><span className="text-primary not-italic">STUDIO.</span>
+                            VARNA<br /><span className="text-primary not-italic">STORE.</span>
                         </h1>
                         <p className="text-white text-[10px] md:text-sm tracking-[0.6em] uppercase mb-12 max-w-2xl mx-auto italic font-black">
-                            AUTHENTIC HUMAN CRAFT • BLOCKCHAIN VERIFIED • ORIGIN DIRECTED
+                            100% AUTHENTIC HANDCRAFTED PRODUCTS DIRECTLY FROM ARTISANS
                         </p>
                         <div className="flex flex-col md:flex-row gap-6 justify-center">
                             <button onClick={() => navigate('/shop')} className="bg-primary text-black px-16 py-6 text-xs font-black uppercase tracking-[0.3em] hover:bg-white transition-all italic border-4 border-primary">
-                                EXPLORE COLLECTION
+                                SHOP NOW
                             </button>
                             <button onClick={() => navigate('/about')} className="bg-transparent text-white px-16 py-6 text-xs font-black uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all italic border-4 border-white">
-                                THE PROTOCOL
+                                ABOUT US
                             </button>
                         </div>
                     </motion.div>
@@ -132,12 +132,12 @@ export default function Home() {
             <div className="max-w-7xl mx-auto px-8 py-40">
                 {/* Intro Section */}
                 <div className="mb-40 max-w-3xl">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-primary mb-6 italic">AESTHETIC ARCHIVE I.</h3>
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-primary mb-6 italic">OUR SHOPS</h3>
                     <p className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-black leading-tight border-b-8 border-primary pb-8 mb-12">
-                        WE DEFINE THE NEW FRONTIER OF ANCIENT CRAFT.
+                        DISCOVER BEAUTIFUL HANDCRAFTED PRODUCTS.
                     </p>
                     <p className="text-lg font-black uppercase tracking-widest text-gray-400 italic leading-relaxed">
-                        DIRECT ACCESS TO MASTER ARTISANS. REMOVING INTERMEDIARIES. <br />
+                        DIRECT LOGIN TO MASTER ARTISANS. REMOVING INTERMEDIARIES. <br />
                         ESTABLISHING THE GOLD STANDARD OF AUTHENTICITY.
                     </p>
                 </div>
@@ -145,16 +145,16 @@ export default function Home() {
                 {/* Visual Categories Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-1 mb-40 border-2 border-black bg-black">
                     <GatewayCard
-                        title="THE CERAMIC EDIT"
+                        title="POTTERY SHOP"
                         image="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=800"
                         link="/shop?category=Pottery"
-                        linkText="POTTERY PROTOCOL"
+                        linkText="POTTERY SHOP"
                     />
                     <GatewayCard
-                        title="WEAVING STORIES"
+                        title="TEXTILE SHOP"
                         image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFp1YEn3dKfspZAnasrR_jjeRzXfdT24NPHg&s"
                         link="/shop?category=Textile"
-                        linkText="TEXTILE LEDGER"
+                        linkText="TEXTILE SHOP"
                     />
                     <div className="bg-primary flex flex-col items-start justify-end p-10 text-black min-h-[500px] group relative overflow-hidden">
                         <Star className="absolute top-10 right-10 opacity-20 scale-[5]" size={100} strokeWidth={1} />
@@ -165,7 +165,7 @@ export default function Home() {
                             </p>
                             {!user ? (
                                 <button onClick={() => navigate('/auth/register')} className="bg-black text-white px-10 py-5 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all italic">
-                                    REGISTER NOW
+                                    SIGN UP
                                 </button>
                             ) : (
                                 <div className="text-2xl font-black italic border-b-2 border-black pb-2">
@@ -176,8 +176,8 @@ export default function Home() {
                     </div>
                 </div>
 
-                {/* Collections */}
-                <ProductRow title="Studio Pottery" items={potteryItems} />
+                {/* Shops */}
+                <ProductRow title="Store Pottery" items={potteryItems} />
 
                 {/* Mid Promo Banner */}
                 <motion.div
@@ -194,7 +194,7 @@ export default function Home() {
                             <p className="text-xs font-black tracking-[0.4em] uppercase text-gray-400 italic">100% OF PROFITS REACH THE CREATORS IN REAL-TIME.</p>
                         </div>
                         <button onClick={() => navigate('/shop')} className="bg-primary text-black px-16 py-6 text-xs font-black uppercase tracking-[0.4em] hover:bg-white transition-all italic shadow-[10px_10px_0px_0px_rgba(255,255,255,1)]">
-                            THE IMPACT MAP
+                            OUR IMPACT
                         </button>
                     </div>
                 </motion.div>
@@ -209,15 +209,15 @@ export default function Home() {
                         <Disc size={24} className="text-primary animate-spin-slow" />
                     </div>
                     <div>
-                        <h3 className="text-4xl font-black italic uppercase tracking-tighter mb-4 text-black italic leading-none">THE VARNA VERDICT.</h3>
+                        <h3 className="text-4xl font-black italic uppercase tracking-tighter mb-4 text-black italic leading-none">NEWSLETTER</h3>
                         <p className="text-[10px] text-gray-400 max-w-md mx-auto tracking-[0.5em] uppercase leading-relaxed font-black italic">
-                            WEEKLY LOGS FROM THE STUDIO FLOOR. <br /> NO SPAM. ONLY AUTHENTICITY.
+                            WEEKLY UPDATES FROM OUR ARTISANS. <br /> NO SPAM.
                         </p>
                     </div>
                     <div className="flex max-w-lg mx-auto overflow-hidden border-b-4 border-black pb-4 hover:border-primary transition-colors">
                         <input
                             type="text"
-                            placeholder="OPERATOR EMAIL ADDRESS"
+                            placeholder="Email Address"
                             className="flex-grow bg-transparent border-none focus:ring-0 text-lg font-black uppercase tracking-widest placeholder:text-gray-100 italic"
                         />
                         <button className="text-lg font-black uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-2 italic">

@@ -88,7 +88,7 @@ export default function ProductDetails() {
 
     const handleAddToCart = () => {
         addToCart(product);
-        toast.success("Added to Studio Cart");
+        toast.success("Added to Store Cart");
     };
 
     const handleBuyNow = () => {
@@ -96,8 +96,8 @@ export default function ProductDetails() {
         navigate('/cart');
     };
 
-    if (loading) return <div className="min-h-screen bg-white flex items-center justify-center font-black italic text-4xl uppercase tracking-tighter">Acquiring Essence...</div>;
-    if (!product) return <div className="min-h-screen bg-white flex items-center justify-center font-black italic text-4xl uppercase tracking-tighter text-red-600">Product Lost in Void</div>;
+    if (loading) return <div className="min-h-screen bg-white flex items-center justify-center font-black italic text-4xl uppercase tracking-tighter">Loading...</div>;
+    if (!product) return <div className="min-h-screen bg-white flex items-center justify-center font-black italic text-4xl uppercase tracking-tighter text-red-600">Product Not Found</div>;
 
     const cartItem = cartItems.find(item => item.id === product.id);
     const qty = cartItem ? cartItem.qty : 0;
@@ -111,7 +111,7 @@ export default function ProductDetails() {
                     <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
                         <Link to="/" className="hover:text-black transition-colors italic">Home</Link>
                         <span>/</span>
-                        <Link to="/shop" className="hover:text-black transition-colors italic">Collection</Link>
+                        <Link to="/shop" className="hover:text-black transition-colors italic">Shop</Link>
                         <span>/</span>
                         <span className="text-black italic">{product.title}</span>
                     </div>
@@ -136,7 +136,7 @@ export default function ProductDetails() {
 
                             {product.is_premium && (
                                 <div className="absolute top-8 left-8 bg-black text-white px-6 py-3 font-black italic text-xs tracking-widest uppercase shadow-[6px_6px_0px_0px_rgba(255,210,0,1)]">
-                                    [BLOCKCHAIN CERTIFIED GEN-1]
+                                    [100% AUTHENTIC - BLOCKCHAIN VERIFIED]
                                 </div>
                             )}
                         </motion.div>
@@ -159,7 +159,7 @@ export default function ProductDetails() {
                         <div className="space-y-4">
                             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary bg-black px-4 py-2 inline-block italic">{product.category}</span>
                             <h1 className="text-6xl font-black italic uppercase tracking-tighter leading-[0.9] text-black">{product.title}</h1>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 italic pt-2">Released by {product.store_name} Studio</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 italic pt-2">Sold by {product.store_name} Store</p>
                         </div>
 
                         <div className="flex items-center gap-6 py-6 border-y border-gray-100">
@@ -171,7 +171,7 @@ export default function ProductDetails() {
                                     ))}
                                 </div>
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">Reviewed by {product.review_count || 0} Citizens</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">Reviewed by {product.review_count || 0} Reviews</span>
                         </div>
 
                         <div className="space-y-4">
@@ -179,12 +179,12 @@ export default function ProductDetails() {
                                 <div className="flex items-baseline gap-6">
                                     <span className="text-5xl font-black italic text-black">₹{product.sale_price}</span>
                                     <span className="text-xl text-gray-300 line-through italic font-bold">₹{product.base_price}</span>
-                                    <span className="text-[10px] font-black uppercase bg-primary px-3 py-1 italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">-{discountPercentage}% VALUE OFF</span>
+                                    <span className="text-[10px] font-black uppercase bg-primary px-3 py-1 italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">-{discountPercentage}% OFF</span>
                                 </div>
                             ) : (
                                 <span className="text-5xl font-black italic text-black">₹{product.base_price}</span>
                             )}
-                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Inclusive of all logistics & digital minting fees</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Inclusive of all taxes & shipping</p>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 pt-4">
@@ -192,22 +192,22 @@ export default function ProductDetails() {
                                 onClick={handleBuyNow}
                                 className="w-full bg-black text-white py-6 flex items-center justify-between px-10 hover:bg-primary hover:text-black transition-all group shadow-[12px_12px_0px_0px_rgba(255,210,0,1)]"
                             >
-                                <span className="text-[12px] font-black uppercase tracking-[0.3em] italic">Immediate Acquisition</span>
+                                <span className="text-[12px] font-black uppercase tracking-[0.3em] italic">Buy Now</span>
                                 <ArrowRight className="group-hover:translate-x-2 transition-transform" strokeWidth={3} />
                             </button>
                             <button
                                 onClick={handleAddToCart}
                                 className="w-full border-4 border-black py-6 text-[12px] font-black uppercase tracking-[0.3em] italic hover:bg-black hover:text-white transition-all"
                             >
-                                {qty > 0 ? `In Studio Cart (${qty})` : "Add to Repository"}
+                                {qty > 0 ? `In Cart (${qty})` : "Add to Cart"}
                             </button>
                         </div>
 
                         <div className="grid grid-cols-3 gap-8 pt-10">
                             {[
-                                { icon: ShieldCheck, label: "POLY AUTH" },
-                                { icon: Truck, label: "VELO SHIP" },
-                                { icon: RotateCcw, label: "7D PURGE" }
+                                { icon: ShieldCheck, label: "100% AUTHENTIC" },
+                                { icon: Truck, label: "FAST SHIPPING" },
+                                { icon: RotateCcw, label: "7-DAY RETURNS" }
                             ].map((item, idx) => (
                                 <div key={idx} className="flex flex-col items-center gap-3 border-r border-gray-100 last:border-none">
                                     <div className="w-12 h-12 bg-gray-50 flex items-center justify-center text-black border border-gray-200">
@@ -219,7 +219,7 @@ export default function ProductDetails() {
                         </div>
 
                         <div className="pt-10 space-y-6">
-                            <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 italic">Product Narrative</h3>
+                            <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 italic">Product Description</h3>
                             <p className="text-sm font-medium text-black leading-relaxed italic border-l-4 border-primary pl-6 py-2">
                                 {product.description}
                             </p>
@@ -232,7 +232,7 @@ export default function ProductDetails() {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
                         <div className="lg:col-span-4 space-y-12">
                             <div>
-                                <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-8 underline decoration-primary decoration-8 underline-offset-8">Public Records</h2>
+                                <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-8 underline decoration-primary decoration-8 underline-offset-8">Customer Reviews</h2>
                                 <div className="flex items-center gap-4 mb-4">
                                     <span className="text-6xl font-black italic">{product.average_rating || "5.0"}</span>
                                     <div className="flex flex-col">
@@ -241,24 +241,24 @@ export default function ProductDetails() {
                                                 <Star key={star} size={20} fill={star <= Math.round(product.average_rating || 5) ? "currentColor" : "none"} stroke="currentColor" strokeWidth={3} />
                                             ))}
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-1">{product.review_count || 0} VERIFIED LOGS</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-1">{product.review_count || 0} VERIFIED REVIEWS</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="space-y-6">
-                                <h3 className="text-[12px] font-black uppercase tracking-[0.3em] italic">Submit Your Feedback / ⚙️</h3>
+                                <h3 className="text-[12px] font-black uppercase tracking-[0.3em] italic">Write a Review</h3>
                                 {!showReviewForm ? (
                                     <button
                                         onClick={() => user ? setShowReviewForm(true) : navigate('/auth/login')}
                                         className="w-full bg-white border-2 border-black py-4 text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all italic"
                                     >
-                                        Establish New Record
+                                        Write a Review
                                     </button>
                                 ) : (
                                     <form onSubmit={handleSubmitReview} className="space-y-6 bg-gray-50 p-8 border-l-8 border-primary">
                                         <div>
-                                            <label className="block text-[9px] font-black uppercase tracking-widest text-gray-500 mb-2">Rating Scale</label>
+                                            <label className="block text-[9px] font-black uppercase tracking-widest text-gray-500 mb-2">Your Rating</label>
                                             <div className="flex gap-2">
                                                 {[1, 2, 3, 4, 5].map(star => (
                                                     <button type="button" key={star} onClick={() => setReviewRating(star)} className="text-primary hover:scale-110 transition-transform">
@@ -271,7 +271,7 @@ export default function ProductDetails() {
                                             <input
                                                 type="text"
                                                 className="w-full bg-transparent border-b-2 border-gray-200 focus:border-black py-3 text-sm font-bold placeholder:text-gray-300 outline-none uppercase"
-                                                placeholder="Headline / Summation"
+                                                placeholder="Review Title"
                                                 value={reviewTitle}
                                                 onChange={e => setReviewTitle(e.target.value)}
                                                 required
@@ -280,15 +280,15 @@ export default function ProductDetails() {
                                         <div>
                                             <textarea
                                                 className="w-full bg-transparent border-b-2 border-gray-200 focus:border-black py-3 text-sm font-medium placeholder:text-gray-300 outline-none italic h-32"
-                                                placeholder="Your technical analysis of this piece..."
+                                                placeholder="Write your review here..."
                                                 value={reviewComment}
                                                 onChange={e => setReviewComment(e.target.value)}
                                                 required
                                             ></textarea>
                                         </div>
                                         <div className="flex justify-between items-center pt-4">
-                                            <button type="button" onClick={() => setShowReviewForm(false)} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black italic">Abort</button>
-                                            <button type="submit" className="bg-black text-white px-8 py-4 text-[10px] font-black uppercase tracking-widest italic hover:bg-primary hover:text-black transition-all">Submit Log</button>
+                                            <button type="button" onClick={() => setShowReviewForm(false)} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black italic">Cancel</button>
+                                            <button type="submit" className="bg-black text-white px-8 py-4 text-[10px] font-black uppercase tracking-widest italic hover:bg-primary hover:text-black transition-all">Submit Review</button>
                                         </div>
                                     </form>
                                 )}
@@ -314,16 +314,16 @@ export default function ProductDetails() {
                                             </div>
                                             <p className="text-sm font-medium text-gray-600 leading-relaxed italic pr-20">{review.comment}</p>
                                             <div className="flex items-center gap-4 pt-4">
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-black">Citizen {review.user_name}</span>
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-black">Customer {review.user_name}</span>
                                                 <span className="w-8 h-[2px] bg-primary" />
-                                                <span className="text-[9px] font-black uppercase text-gray-300 italic tracking-[0.2em]">Authenticity Confirmed</span>
+                                                <span className="text-[9px] font-black uppercase text-gray-300 italic tracking-[0.2em]">Verified Buyer</span>
                                             </div>
                                         </div>
                                     </div>
                                 ))
                             ) : (
                                 <div className="py-20 text-center border-4 border-dashed border-gray-100 italic">
-                                    <p className="text-[12px] font-black uppercase tracking-[0.4em] text-gray-200">Awaiting First Public Record</p>
+                                    <p className="text-[12px] font-black uppercase tracking-[0.4em] text-gray-200">No Reviews Yet</p>
                                 </div>
                             )}
                         </div>
@@ -334,8 +334,8 @@ export default function ProductDetails() {
                 {recommendations.length > 0 && (
                     <div className="mt-40">
                         <div className="flex justify-between items-end mb-12 border-b-2 border-black pb-8">
-                            <h2 className="text-4xl font-black italic uppercase tracking-tighter">Extended Collection</h2>
-                            <Link to="/shop" className="text-[10px] font-black uppercase tracking-widest italic border-b-4 border-primary pb-1 hover:text-primary transition-colors">Manifest All</Link>
+                            <h2 className="text-4xl font-black italic uppercase tracking-tighter">Extended Shop</h2>
+                            <Link to="/shop" className="text-[10px] font-black uppercase tracking-widest italic border-b-4 border-primary pb-1 hover:text-primary transition-colors">View All</Link>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                             {recommendations.map(item => (

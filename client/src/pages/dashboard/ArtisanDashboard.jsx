@@ -31,7 +31,7 @@ export default function ArtisanDashboard() {
     const [showAddForm, setShowAddForm] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editId, setEditId] = useState(null);
-    const [activeTab, setActiveTab] = useState('inventory'); // dashboard, inventory, operations, community, studio
+    const [activeTab, setActiveTab] = useState('inventory'); // dashboard, inventory, operations, community, store
 
     // Reviews & Coupons State
     const [reviews, setReviews] = useState([]);
@@ -161,7 +161,7 @@ export default function ArtisanDashboard() {
             await axios.put('http://localhost:5000/artisan/profile', artisanProfile, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            toast.success("Studio Profile Updated!");
+            toast.success("Store Profile Updated!");
             fetchDashboardData();
         } catch (err) {
             toast.error("Update failed");
@@ -172,7 +172,7 @@ export default function ArtisanDashboard() {
         <div className="min-h-screen bg-white flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
                 <div className="w-12 h-12 border-4 border-black border-t-primary animate-spin" />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] italic">Synchronizing Studio Parameters</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] italic">Loading...</span>
             </div>
         </div>
     );
@@ -315,10 +315,10 @@ export default function ArtisanDashboard() {
         }
     };
 
-    const copyAddress = (address) => {
+    const copyLogistics = (address) => {
         const text = `${address.full_name}, ${address.street}, ${address.city}, ${address.state} - ${address.pincode}`;
         navigator.clipboard.writeText(text);
-        toast.success('Address copied to clipboard!');
+        toast.success('Logistics copied to clipboard!');
     };
 
     const handleMint = async (productId) => {
@@ -347,12 +347,12 @@ export default function ArtisanDashboard() {
                 <div className="flex items-center gap-4">
                     <div className="bg-primary text-black w-12 h-12 rounded-none flex items-center justify-center font-black italic text-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">A</div>
                     <div>
-                        <h1 className="text-xl font-black uppercase tracking-tighter">Artisan Studio</h1>
+                        <h1 className="text-xl font-black uppercase tracking-tighter">Artisan Dashboard</h1>
                         <p className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">{user.email}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-6">
-                    <Link to="/" className="text-[10px] font-black uppercase tracking-widest hover:text-primary">Back to Store</Link>
+                    <Link to="/" className="text-[10px] font-black uppercase tracking-widest hover:text-primary">Go to Inventory</Link>
                     <button onClick={logout} className="text-[10px] font-black uppercase tracking-widest text-red-600 hover:text-red-700 bg-red-50 px-4 py-2">
                         Sign Out
                     </button>
@@ -363,12 +363,12 @@ export default function ArtisanDashboard() {
                 {/* Tab Navigation */}
                 <div className="flex flex-wrap gap-4 mb-12 border-b-2 border-gray-100 pb-8">
                     {[
-                        { id: 'dashboard', label: 'Intelligence', icon: LayoutDashboard },
+                        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
                         { id: 'inventory', label: 'Inventory', icon: ShoppingBag },
                         { id: 'operations', label: 'Logistics', icon: Truck },
-                        { id: 'marketing', label: 'Campaigns', icon: Tag },
-                        { id: 'community', label: 'Citizens', icon: MessageSquare },
-                        { id: 'studio', label: 'Configuration', icon: User },
+                        { id: 'marketing', label: 'Coupons', icon: Tag },
+                        { id: 'community', label: 'Reviews', icon: MessageSquare },
+                        { id: 'store', label: 'Settings', icon: User },
                     ].map(tab => (
                         <button
                             key={tab.id}
@@ -397,7 +397,7 @@ export default function ArtisanDashboard() {
                             </div>
                             <div className="bg-primary p-8 shadow-sm flex flex-col justify-center min-h-[140px] relative overflow-hidden group">
                                 <div className="relative z-10">
-                                    <h3 className="font-black italic text-xl uppercase tracking-tighter mb-1">Blockchain Safe</h3>
+                                    <h3 className="font-black italic text-xl uppercase tracking-tighter mb-1">Blockchain Enabled</h3>
                                     <p className="text-black/60 text-[10px] font-bold uppercase tracking-widest">Mint authenticity tokens for your crafts.</p>
                                 </div>
                                 <span className="absolute -right-4 -bottom-4 text-black/10 text-8xl font-black italic select-none group-hover:scale-110 transition-transform">NFT</span>
@@ -410,9 +410,9 @@ export default function ArtisanDashboard() {
                                 <div>
                                     <h2 className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3">
                                         <span className="text-primary text-3xl italic">/</span>
-                                        Visual Performance
+                                        Sales Overview
                                     </h2>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Real-time business analytics for your studio</p>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Real-time sales analytics</p>
                                 </div>
 
                                 {/* Chart Selector */}
@@ -519,7 +519,7 @@ export default function ArtisanDashboard() {
                         {/* Order Management Section */}
                         <div className="mb-20">
                             <div className="flex items-center justify-between mb-10 border-l-4 border-black pl-4">
-                                <h2 className="text-2xl font-black uppercase tracking-tighter">Active Business Studio Orders</h2>
+                                <h2 className="text-2xl font-black uppercase tracking-tighter">Recent Orders</h2>
                                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">Live Logistics Track</span>
                             </div>
 
@@ -549,7 +549,7 @@ export default function ArtisanDashboard() {
                                                             </span>
                                                         </div>
                                                         <h4 className="font-black text-black text-xl italic tracking-tighter uppercase">{order.product_title}</h4>
-                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">REVENUE: <span className="text-black font-black italic">₹{order.subtotal}</span> / {order.quantity} UNIT</p>
+                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">TOTAL: <span className="text-black font-black italic">₹{order.subtotal}</span> / {order.quantity} UNIT</p>
                                                     </div>
                                                 </div>
 
@@ -591,7 +591,7 @@ export default function ArtisanDashboard() {
                                                             onClick={() => handleStatusUpdate(order.id, 'PACKED')}
                                                             className="w-full lg:w-48 bg-black text-white px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-black transition-colors"
                                                         >
-                                                            Mark Packed
+                                                            Pack Order
                                                         </button>
                                                     )}
                                                     {order.status === 'PACKED' && (
@@ -607,7 +607,7 @@ export default function ArtisanDashboard() {
                                                             onClick={() => handleStatusUpdate(order.id, 'DELIVERED')}
                                                             className="w-full lg:w-48 border-2 border-black text-black px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-colors"
                                                         >
-                                                            Confirm Receipt
+                                                            Mark Delivered
                                                         </button>
                                                     )}
                                                     <button
@@ -623,7 +623,7 @@ export default function ArtisanDashboard() {
                                                                         <span className="text-gray-400">Addr:</span> {order.shipping_address.street}, {order.shipping_address.city}, {order.shipping_address.pincode}
                                                                     </div>
                                                                     <div className="flex gap-4">
-                                                                        <button className="flex-1 bg-black text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest" onClick={() => { copyAddress(order.shipping_address); toast.dismiss(t.id); }}>Copy Address</button>
+                                                                        <button className="flex-1 bg-black text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest" onClick={() => { copyLogistics(order.shipping_address); toast.dismiss(t.id); }}>Copy Logistics</button>
                                                                         <a href={`tel:${order.shipping_address.phone_number || '0000000000'}`} className="flex-1 bg-primary text-black px-4 py-2 text-[10px] font-black uppercase tracking-widest text-center">Call Now</a>
                                                                     </div>
                                                                 </div>
@@ -665,7 +665,7 @@ export default function ArtisanDashboard() {
 
                                     <form onSubmit={handleFulfillmentSubmit} className="p-8 space-y-8">
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Tracking Identifier / AWB</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Tracking Number</label>
                                             <input
                                                 type="text"
                                                 placeholder="E.G. DTDC-123456"
@@ -677,7 +677,7 @@ export default function ArtisanDashboard() {
                                         </div>
 
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Official Receipt Scan</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Shipping Receipt</label>
                                             <div className="relative border-4 border-dashed border-gray-200 p-8 text-center hover:bg-gray-50 transition-all cursor-pointer">
                                                 {fulfillmentPreview ? (
                                                     <div className="relative">
@@ -689,7 +689,7 @@ export default function ArtisanDashboard() {
                                                 ) : (
                                                     <div className="space-y-3">
                                                         <Package size={32} className="mx-auto text-gray-200" />
-                                                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Upload Courier Manifest</p>
+                                                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Upload Receipt</p>
                                                         <input
                                                             type="file"
                                                             className="absolute inset-0 opacity-0 cursor-pointer"
@@ -703,10 +703,10 @@ export default function ArtisanDashboard() {
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <button type="button" onClick={() => { setShowFulfillmentModal(false); setSelectedOrder(null); }} className="border-2 border-black text-black py-4 text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all">
-                                                ABORT
+                                                CANCEL
                                             </button>
                                             <button type="submit" className="bg-black text-white py-4 text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-black transition-all">
-                                                SUBMIT LEDGER
+                                                SUBMIT DETAILS
                                             </button>
                                         </div>
                                     </form>
@@ -719,12 +719,12 @@ export default function ArtisanDashboard() {
                 {activeTab === 'inventory' && (
                     <div className="space-y-12">
                         <div className="flex flex-col md:flex-row justify-between items-center mb-10 border-b-2 border-black pb-4">
-                            <h2 className="text-3xl font-black italic uppercase tracking-tighter">Studio Catalogue</h2>
+                            <h2 className="text-3xl font-black italic uppercase tracking-tighter">My Products</h2>
                             <button
                                 onClick={() => { resetForm(); setShowAddForm(true); }}
                                 className="bg-primary text-black px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                             >
-                                + Create Masterpiece
+                                + Add Product
                             </button>
                         </div>
 
@@ -732,13 +732,13 @@ export default function ArtisanDashboard() {
                             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
                                 <div className="bg-white shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-none border-[6px] border-primary">
                                     <div className="p-8 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
-                                        <h3 className="text-2xl font-black italic uppercase tracking-tighter">{isEditing ? 'Modify Concept' : 'Capture New Essence'}</h3>
+                                        <h3 className="text-2xl font-black italic uppercase tracking-tighter">{isEditing ? 'Edit Product' : 'Add New Product'}</h3>
                                         <button onClick={resetForm} className="text-black hover:text-primary text-3xl font-black transition-colors">&times;</button>
                                     </div>
 
                                     <form onSubmit={handleFormSubmit} className="p-8 space-y-8">
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Product Title</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Product Name</label>
                                             <input
                                                 className="w-full p-4 bg-gray-50 border-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-bold uppercase tracking-tight transition-all"
                                                 placeholder="e.g. TERRACOTTA DUSK VASE"
@@ -749,7 +749,7 @@ export default function ArtisanDashboard() {
                                         </div>
 
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Product Media</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Product Image</label>
 
                                             <div className="flex gap-1 mb-4">
                                                 <button
@@ -861,7 +861,7 @@ export default function ArtisanDashboard() {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Studio Price (₹)</label>
+                                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Store Price (₹)</label>
                                                     <input
                                                         type="number"
                                                         className={`w-full p-4 border-none focus:ring-2 focus:ring-primary text-sm font-bold transition-all ${newItem.sale_price && Number(newItem.sale_price) > Number(newItem.base_price) ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-black'}`}
@@ -873,12 +873,12 @@ export default function ArtisanDashboard() {
                                                     />
                                                 </div>
                                                 <div className="flex items-center justify-center">
-                                                    {discount > 0 && <span className="bg-black text-primary font-black italic px-4 py-2 text-[10px] shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">{discount}% VALUE OFF</span>}
+                                                    {discount > 0 && <span className="bg-black text-primary font-black italic px-4 py-2 text-[10px] shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">{discount}% OFF</span>}
                                                 </div>
                                             </div>
 
                                             <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Product Narrative</label>
+                                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Product Description</label>
                                                 <textarea
                                                     className="w-full p-4 bg-gray-50 border-none focus:ring-2 focus:ring-primary text-sm font-medium transition-all h-32"
                                                     placeholder="Write the story behind this creation..."
@@ -903,10 +903,10 @@ export default function ArtisanDashboard() {
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                                             <button type="submit" className="bg-black text-white py-5 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-primary hover:text-black transition-all shadow-[8px_8px_0px_0px_rgba(255,210,0,1)]">
-                                                {isEditing ? 'COMMIT UPDATES' : 'RELEASE COLLECTION'}
+                                                {isEditing ? 'COMMIT UPDATES' : 'RELEASE SHOP'}
                                             </button>
                                             <button type="button" onClick={resetForm} className="border-2 border-black text-black py-5 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all">
-                                                ABORT
+                                                CANCEL
                                             </button>
                                         </div>
                                     </form>
@@ -917,7 +917,7 @@ export default function ArtisanDashboard() {
                         <div className="bg-white border-2 border-black mb-20">
                             {products.length === 0 ? (
                                 <div className="p-20 text-center text-gray-300 italic">
-                                    <p className="text-3xl font-black uppercase tracking-tighter mb-4">Studio empty.</p>
+                                    <p className="text-3xl font-black uppercase tracking-tighter mb-4">Store empty.</p>
                                     <p className="text-[10px] font-bold tracking-widest uppercase">Begin your digital legacy today.</p>
                                 </div>
                             ) : (
@@ -999,14 +999,14 @@ export default function ArtisanDashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {coupons.map(coupon => (
                                 <div key={coupon.id} className="border-4 border-gray-100 p-8 group hover:border-black transition-all relative overflow-hidden">
-                                    {!coupon.is_active && <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px] z-10 flex items-center justify-center font-black italic uppercase text-red-600 rotate-12 text-2xl border-4 border-red-600 m-4">TERMINATED</div>}
+                                    {!coupon.is_active && <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px] z-10 flex items-center justify-center font-black italic uppercase text-red-600 rotate-12 text-2xl border-4 border-red-600 m-4">REMOVED</div>}
                                     <div className="flex justify-between items-start mb-10">
                                         <div>
                                             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic mb-1">PROTO-CODE</p>
                                             <h3 className="text-3xl font-black italic text-black bg-primary px-4 py-1 inline-block">{coupon.code}</h3>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">VALUE OFF</p>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">OFF</p>
                                             <p className="text-3xl font-black italic text-black">{Math.round(coupon.discount_percentage)}%</p>
                                         </div>
                                     </div>
@@ -1091,7 +1091,7 @@ export default function ArtisanDashboard() {
                     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4">
                         <div className="flex justify-between items-end border-b-2 border-black pb-8">
                             <div>
-                                <h2 className="text-4xl font-black italic uppercase tracking-tighter">Citizen Intelligence</h2>
+                                <h2 className="text-4xl font-black italic uppercase tracking-tighter">Customer Dashboard</h2>
                                 <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase italic mt-2">Public Sentiment & Product Validation</p>
                             </div>
                             <div className="flex items-center gap-6">
@@ -1148,17 +1148,17 @@ export default function ArtisanDashboard() {
                     </div>
                 )}
 
-                {activeTab === 'studio' && artisanProfile && (
+                {activeTab === 'store' && artisanProfile && (
                     <div className="max-w-4xl mx-auto space-y-16 animate-in fade-in slide-in-from-bottom-4">
                         <div className="border-b-4 border-black pb-8">
-                            <h2 className="text-4xl font-black italic uppercase tracking-tighter">Studio Configuration</h2>
+                            <h2 className="text-4xl font-black italic uppercase tracking-tighter">Store Settings</h2>
                             <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase italic mt-2">Operational Parameters & Personal Metadata</p>
                         </div>
 
                         <form onSubmit={handleUpdateArtisanProfile} className="space-y-12 pb-40">
                             {/* Personal Details */}
                             <div className="space-y-8">
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary bg-black inline-block px-4 py-1 italic">Master Identity</h3>
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary bg-black inline-block px-4 py-1 italic">Master Profile</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Full Legal Name</label>
@@ -1170,7 +1170,7 @@ export default function ArtisanDashboard() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Contact Protocol (Phone)</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Phone Number</label>
                                         <input
                                             className="w-full bg-gray-50 border-b-4 border-transparent focus:border-black p-4 text-sm font-black uppercase outline-none"
                                             value={artisanProfile.phone_number || ''}
@@ -1181,11 +1181,11 @@ export default function ArtisanDashboard() {
                                 </div>
                             </div>
 
-                            {/* Studio Details */}
+                            {/* Store Details */}
                             <div className="space-y-8">
                                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary bg-black inline-block px-4 py-1 italic">Spatial Branding</h3>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Studio / Store Name</label>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Store / Store Name</label>
                                     <input
                                         className="w-full bg-gray-50 border-b-4 border-transparent focus:border-black p-4 text-xl font-black italic uppercase outline-none"
                                         value={artisanProfile.store_name || ''}
@@ -1194,7 +1194,7 @@ export default function ArtisanDashboard() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Studio Narrative (Bio)</label>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Store Narrative (Bio)</label>
                                     <textarea
                                         className="w-full bg-gray-50 border-b-4 border-transparent focus:border-black p-4 text-sm font-medium italic outline-none h-32 leading-relaxed"
                                         value={artisanProfile.bio || ''}
@@ -1223,7 +1223,7 @@ export default function ArtisanDashboard() {
                                 </div>
                             </div>
 
-                            {/* Financial Logistics */}
+                            {/* Order Summaryistics */}
                             <div className="space-y-8">
                                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary bg-black inline-block px-4 py-1 italic">Liquid Assets Logistics</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1263,7 +1263,7 @@ export default function ArtisanDashboard() {
                             </div>
 
                             <button type="submit" className="w-full bg-black text-white py-8 text-xs font-black uppercase tracking-[0.5em] italic shadow-[16px_16px_0px_0px_rgba(255,210,0,1)] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all">
-                                COMMIT PARAMETERS TO STUDIO CORE
+                                COMMIT PARAMETERS TO STORE CORE
                             </button>
                         </form>
                     </div>
@@ -1299,7 +1299,7 @@ export default function ArtisanDashboard() {
                             rel="noopener noreferrer"
                             className="flex items-center justify-center gap-3 w-full bg-black text-white py-5 text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-black transition-all"
                         >
-                            VIEW CERTIFICATE <ExternalLink size={14} strokeWidth={3} />
+                            VIEW VIEW VIEW CERTIFICATE <ExternalLink size={14} strokeWidth={3} />
                         </a>
                     </div>
                 </div>

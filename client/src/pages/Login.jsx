@@ -34,23 +34,23 @@ export default function Login() {
             >
                 <div className="mb-10 text-center">
                     <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-2">Login / 01</h2>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Access your fashion studio</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Login to your account</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                     <div className="relative group">
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Identity / Email</label>
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Email ID</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="block w-full border-b-2 border-gray-100 focus:border-black bg-transparent py-3 font-bold text-sm tracking-tight transition-all outline-none"
-                            placeholder="your@studio.com"
+                            placeholder="your@store.com"
                             required
                         />
                     </div>
                     <div className="relative group">
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Security / Password</label>
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 group-focus-within:text-black transition-colors">Password</label>
                         <input
                             type="password"
                             value={password}
@@ -66,7 +66,7 @@ export default function Login() {
                             type="submit"
                             className="w-full bg-black text-white font-black italic uppercase tracking-[0.2em] py-5 shadow-[8px_8px_0px_0px_rgba(255,210,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
                         >
-                            Enter Studio
+                            LOG IN
                         </button>
                     </div>
                 </form>
@@ -79,7 +79,7 @@ export default function Login() {
                         to="/auth/register"
                         className="text-xs font-black uppercase tracking-[0.2em] hover:text-primary transition-colors border-2 border-black py-3"
                     >
-                        Create Identity
+                        Sign Up
                     </Link>
                 </div>
             </motion.div>

@@ -62,11 +62,11 @@ export default function Shop() {
                 <div className="mb-16 flex flex-col md:flex-row justify-between items-baseline gap-4 border-b-2 border-black pb-8">
                     <div>
                         <h1 className="text-5xl font-black italic uppercase tracking-tighter">
-                            {category ? category : 'Catalogue'}
+                            {category ? category : 'Shop'}
                         </h1>
                         {search && (
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mt-2 italic">
-                                Search Result for: <span className="text-black">"{search}"</span>
+                                Search Results for: <span className="text-black">"{search}"</span>
                             </p>
                         )}
                     </div>
@@ -87,7 +87,7 @@ export default function Shop() {
                                             onClick={() => handleCategoryChange('')}
                                             className={`text-xs font-black uppercase tracking-widest transition-all ${!category ? 'text-black border-l-4 border-primary pl-3' : 'text-gray-400 hover:text-black hover:pl-2'}`}
                                         >
-                                            All Masterpieces
+                                            All Products
                                         </button>
                                     </li>
                                     {['Pottery', 'Textile', 'Woodwork', 'Jewelry', 'Decor'].map(cat => (
@@ -104,7 +104,7 @@ export default function Shop() {
                             </div>
 
                             <div className="hidden md:block">
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-6 italic">Curation</h3>
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-6 italic">About Our Products</h3>
                                 <p className="text-[9px] font-bold text-gray-400 leading-loose">
                                     Every piece in our shop is hand-verified and minted on the blockchain for absolute authenticity.
                                 </p>
@@ -140,7 +140,7 @@ export default function Shop() {
                                                         onClick={(e) => handleAddToCart(e, item)}
                                                         className="w-full bg-black text-white text-[10px] font-black uppercase tracking-widest py-4 hover:bg-primary hover:text-black transition-all"
                                                     >
-                                                        Quick Add +
+                                                        Add to Cart
                                                     </button>
                                                 ) : (
                                                     <div className="flex items-center bg-black text-white py-3 px-4 justify-between" onClick={(e) => e.preventDefault()}>
@@ -174,8 +174,8 @@ export default function Shop() {
 
                         {products.length === 0 && (
                             <div className="text-center py-40 border-l border-r border-gray-100 italic">
-                                <h3 className="text-4xl font-black uppercase tracking-tighter text-gray-100 mb-6 italic select-none">Void Catalogue</h3>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">No masterpieces found in this category.</p>
+                                <h3 className="text-4xl font-black uppercase tracking-tighter text-gray-100 mb-6 italic select-none">Void Shop</h3>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">We could not find any products in this category.</p>
                                 <button onClick={() => { setSearchParams({}); }} className="text-xs font-black uppercase tracking-widest border-b-4 border-primary hover:text-primary transition-colors pb-1">Reset Filters</button>
                             </div>
                         )}

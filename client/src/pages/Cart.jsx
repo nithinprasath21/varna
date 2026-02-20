@@ -12,10 +12,10 @@ export default function Cart() {
     const [isCheckout, setIsCheckout] = useState(false);
 
     // Checkout State
-    const [addresses, setAddresses] = useState([]);
-    const [selectedAddress, setSelectedAddress] = useState(null);
-    const [showAddAddress, setShowAddAddress] = useState(false);
-    const [newAddress, setNewAddress] = useState({ full_name: '', street: '', city: '', state: '', pincode: '' });
+    const [addresses, setLogistics] = useState([]);
+    const [selectedLogistics, setSelectedLogistics] = useState(null);
+    const [showAddLogistics, setShowAddLogistics] = useState(false);
+    const [newLogistics, setNewLogistics] = useState({ full_name: '', street: '', city: '', state: '', pincode: '' });
 
     const [couponCode, setCouponCode] = useState('');
     const [discountAmount, setDiscountAmount] = useState(0);
@@ -31,16 +31,16 @@ export default function Cart() {
         bankName: ''
     });
 
-    const fetchAddresses = async () => {
+    const fetchLogistics = async () => {
         try {
             const token = localStorage.getItem('token');
             const res = await axios.get('http://localhost:5000/auth/profile', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setAddresses(res.data.addresses);
+            setLogistics(res.data.addresses);
             const defaultAddr = res.data.addresses.find(a => a.is_default);
-            if (defaultAddr) setSelectedAddress(defaultAddr.id);
-            else if (res.data.addresses.length > 0) setSelectedAddress(res.data.addresses[0].id);
+            if (defaultAddr) setSelectedLogistics(defaultAddr.id);
+            else if (res.data.addresses.length > 0) setSelectedLogistics(res.data.addresses[0].id);
         } catch (err) {
             console.error("Auth fetch failed", err);
         }
@@ -53,20 +53,20 @@ export default function Cart() {
             return;
         }
         setIsCheckout(true);
-        fetchAddresses();
+        fetchLogistics();
     };
 
-    const handleSaveAddress = async (e) => {
+    const handleSaveLogistics = async (e) => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:5000/auth/address', { ...newAddress, is_default: addresses.length === 0 }, {
+            const res = await axios.post('http://localhost:5000/auth/address', { ...newLogistics, is_default: addresses.length === 0 }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setAddresses([...addresses, res.data]);
-            setSelectedAddress(res.data.id);
-            setShowAddAddress(false);
-            setNewAddress({ full_name: '', street: '', city: '', state: '', pincode: '' });
+            setLogistics([...addresses, res.data]);
+            setSelectedLogistics(res.data.id);
+            setShowAddLogistics(false);
+            setNewLogistics({ full_name: '', street: '', city: '', state: '', pincode: '' });
         } catch (err) {
             toast.error('Failed to save address');
         }
@@ -115,7 +115,7 @@ export default function Cart() {
     };
 
     const confirmOrder = async () => {
-        if (!selectedAddress) return toast.error('Please select a delivery address');
+        if (!selectedLogistics) return toast.error('Please select a delivery address');
         if (!validatePayment()) return;
 
         try {
@@ -124,7 +124,7 @@ export default function Cart() {
 
             await axios.post('http://localhost:5000/orders', {
                 items: cartItems,
-                address_id: selectedAddress,
+                address_id: selectedLogistics,
                 payment_mode: paymentMode,
                 total_amount: finalAmount,
                 coupon_code: validatedCoupon
@@ -147,12 +147,12 @@ export default function Cart() {
     if (cartItems.length === 0) {
         return (
             <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8">
-                <h2 className="text-6xl font-black italic uppercase tracking-tighter mb-8 blur-[1px] opacity-20 select-none">Void Repository</h2>
+                <h2 className="text-6xl font-black italic uppercase tracking-tighter mb-8 blur-[1px] opacity-20 select-none">Empty Cart</h2>
                 <button
                     onClick={() => navigate('/shop')}
                     className="group flex items-center gap-4 text-xs font-black uppercase tracking-widest border-b-4 border-primary pb-2 hover:translate-x-2 transition-transform"
                 >
-                    Manifest Masterpieces <ArrowRight size={16} strokeWidth={3} />
+                    Shop Now <ArrowRight size={16} strokeWidth={3} />
                 </button>
             </div>
         );
@@ -165,64 +165,64 @@ export default function Cart() {
                     <div className="mb-16 flex items-baseline justify-between border-b-2 border-black pb-8">
                         <h1 className="text-5xl font-black italic uppercase tracking-tighter">Settlement / <span className="text-primary italic">02</span></h1>
                         <button onClick={() => setIsCheckout(false)} className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2 hover:text-black transition-colors">
-                            <ArrowLeft size={14} /> Back to Repository
+                            <ArrowLeft size={14} /> Back to Cart
                         </button>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
                         {/* Left Column: Logistics & Payment */}
                         <div className="lg:col-span-7 space-y-16">
-                            {/* Address Section */}
+                            {/* Logistics Section */}
                             <section>
                                 <div className="flex justify-between items-baseline mb-8">
-                                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 italic">I. LOGISTICS DESTINATION</h3>
-                                    <button onClick={() => setShowAddAddress(!showAddAddress)} className="text-[10px] font-black uppercase tracking-widest text-primary hover:bg-black px-4 py-1 transition-colors">
-                                        {showAddAddress ? 'CANCEL' : '[ ADD NEW ]'}
+                                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 italic">I. DELIVERY LOGISTICS</h3>
+                                    <button onClick={() => setShowAddLogistics(!showAddLogistics)} className="text-[10px] font-black uppercase tracking-widest text-primary hover:bg-black px-4 py-1 transition-colors">
+                                        {showAddLogistics ? 'CANCEL' : 'Add New Logistics'}
                                     </button>
                                 </div>
 
-                                {showAddAddress && (
-                                    <form onSubmit={handleSaveAddress} className="bg-gray-50 p-8 border-l-8 border-primary space-y-6 mb-8">
-                                        <input placeholder="RECEIPIENT NAME" className="w-full bg-transparent border-b-2 border-gray-200 focus:border-black py-3 text-sm font-black uppercase tracking-tight outline-none" value={newAddress.full_name} onChange={e => setNewAddress({ ...newAddress, full_name: e.target.value })} required />
-                                        <input placeholder="STREET ADDRESS / STUDIO" className="w-full bg-transparent border-b-2 border-gray-200 focus:border-black py-3 text-sm font-bold uppercase tracking-tight outline-none" value={newAddress.street} onChange={e => setNewAddress({ ...newAddress, street: e.target.value })} required />
+                                {showAddLogistics && (
+                                    <form onSubmit={handleSaveLogistics} className="bg-gray-50 p-8 border-l-8 border-primary space-y-6 mb-8">
+                                        <input placeholder="RECEIPIENT NAME" className="w-full bg-transparent border-b-2 border-gray-200 focus:border-black py-3 text-sm font-black uppercase tracking-tight outline-none" value={newLogistics.full_name} onChange={e => setNewLogistics({ ...newLogistics, full_name: e.target.value })} required />
+                                        <input placeholder="STREET LOGISTICS / STORE" className="w-full bg-transparent border-b-2 border-gray-200 focus:border-black py-3 text-sm font-bold uppercase tracking-tight outline-none" value={newLogistics.street} onChange={e => setNewLogistics({ ...newLogistics, street: e.target.value })} required />
                                         <div className="grid grid-cols-3 gap-8">
-                                            <input placeholder="CITY" className="bg-transparent border-b-2 border-gray-200 focus:border-black py-3 text-sm font-bold uppercase tracking-tight outline-none" value={newAddress.city} onChange={e => setNewAddress({ ...newAddress, city: e.target.value })} required />
-                                            <input placeholder="STATE" className="bg-transparent border-b-2 border-gray-200 focus:border-black py-3 text-sm font-bold uppercase tracking-tight outline-none" value={newAddress.state} onChange={e => setNewAddress({ ...newAddress, state: e.target.value })} required />
-                                            <input placeholder="PINCODE" className="bg-transparent border-b-2 border-gray-200 focus:border-black py-3 text-sm font-bold uppercase tracking-tight outline-none" value={newAddress.pincode} onChange={e => setNewAddress({ ...newAddress, pincode: e.target.value })} required />
+                                            <input placeholder="CITY" className="bg-transparent border-b-2 border-gray-200 focus:border-black py-3 text-sm font-bold uppercase tracking-tight outline-none" value={newLogistics.city} onChange={e => setNewLogistics({ ...newLogistics, city: e.target.value })} required />
+                                            <input placeholder="STATE" className="bg-transparent border-b-2 border-gray-200 focus:border-black py-3 text-sm font-bold uppercase tracking-tight outline-none" value={newLogistics.state} onChange={e => setNewLogistics({ ...newLogistics, state: e.target.value })} required />
+                                            <input placeholder="PINCODE" className="bg-transparent border-b-2 border-gray-200 focus:border-black py-3 text-sm font-bold uppercase tracking-tight outline-none" value={newLogistics.pincode} onChange={e => setNewLogistics({ ...newLogistics, pincode: e.target.value })} required />
                                         </div>
-                                        <button className="bg-black text-white px-8 py-4 text-[10px] font-black uppercase tracking-widest italic hover:bg-primary hover:text-black transition-all">ESTABLISH DESTINATION</button>
+                                        <button className="bg-black text-white px-8 py-4 text-[10px] font-black uppercase tracking-widest italic hover:bg-primary hover:text-black transition-all">SAVE LOGISTICS</button>
                                     </form>
                                 )}
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {addresses.map(addr => (
-                                        <label key={addr.id} className={`block p-6 border-4 cursor-pointer transition-all relative ${selectedAddress === addr.id ? 'border-black' : 'border-gray-50 hover:border-gray-100'}`}>
-                                            <input type="radio" name="address" checked={selectedAddress === addr.id} onChange={() => setSelectedAddress(addr.id)} className="sr-only" />
+                                        <label key={addr.id} className={`block p-6 border-4 cursor-pointer transition-all relative ${selectedLogistics === addr.id ? 'border-black' : 'border-gray-50 hover:border-gray-100'}`}>
+                                            <input type="radio" name="address" checked={selectedLogistics === addr.id} onChange={() => setSelectedLogistics(addr.id)} className="sr-only" />
                                             <div className="space-y-2">
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">LOG {addr.id}</p>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">LOGISTICS {addr.id}</p>
                                                 <p className="font-black italic uppercase text-lg">{addr.full_name}</p>
                                                 <p className="text-xs font-bold text-gray-500 uppercase leading-loose">{addr.street}, {addr.city}, {addr.state} - {addr.pincode}</p>
                                             </div>
-                                            {selectedAddress === addr.id && (
+                                            {selectedLogistics === addr.id && (
                                                 <div className="absolute top-4 right-4 bg-primary text-black p-1">
                                                     <ShieldCheck size={16} strokeWidth={3} />
                                                 </div>
                                             )}
                                         </label>
                                     ))}
-                                    {addresses.length === 0 && !showAddAddress && <p className="text-[10px] font-black uppercase tracking-widest text-gray-300 italic">DESTINATION RECORDS EMPTY</p>}
+                                    {addresses.length === 0 && !showAddLogistics && <p className="text-[10px] font-black uppercase tracking-widest text-gray-300 italic">NO LOGISTICS FOUND</p>}
                                 </div>
                             </section>
 
                             {/* Payment Section */}
                             <section>
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 italic mb-8">II. CURRENCY ACQUISITION</h3>
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 italic mb-8">II. PAYMENT METHOD</h3>
                                 <div className="space-y-4">
                                     {[
-                                        { id: 'UPI', label: 'UPI NETWORK' },
-                                        { id: 'Credit/Debit Card', label: 'CARD TRANSACTION' },
-                                        { id: 'Netbanking', label: 'BANK PORTAL' },
-                                        { id: 'Cash on Delivery', label: 'PHYSICAL SETTLEMENT' }
+                                        { id: 'UPI', label: 'UPI' },
+                                        { id: 'Credit/Debit Card', label: 'CREDIT/DEBIT CARD' },
+                                        { id: 'Netbanking', label: 'NETBANKING' },
+                                        { id: 'Cash on Delivery', label: 'CASH ON DELIVERY' }
                                     ].map(mode => (
                                         <div key={mode.id} className={`border-4 transition-all ${paymentMode === mode.id ? 'border-black' : 'border-gray-50'}`}>
                                             <label className="flex items-center gap-6 p-6 cursor-pointer group">
@@ -239,7 +239,7 @@ export default function Cart() {
 
                                             {paymentMode === mode.id && paymentMode === 'Credit/Debit Card' && (
                                                 <div className="px-16 pb-8 grid grid-cols-2 gap-8">
-                                                    <input placeholder="CARD IDENTIFIER" className="col-span-2 bg-transparent border-b-2 border-black py-3 text-sm font-black uppercase tracking-tight outline-none" value={paymentDetails.cardNumber} onChange={e => setPaymentDetails({ ...paymentDetails, cardNumber: e.target.value })} maxLength={16} />
+                                                    <input placeholder="CARD NUMBER" className="col-span-2 bg-transparent border-b-2 border-black py-3 text-sm font-black uppercase tracking-tight outline-none" value={paymentDetails.cardNumber} onChange={e => setPaymentDetails({ ...paymentDetails, cardNumber: e.target.value })} maxLength={16} />
                                                     <input placeholder="EXPIRY (MM/YY)" className="bg-transparent border-b-2 border-black py-3 text-sm font-black uppercase tracking-tight outline-none" value={paymentDetails.cardExpiry} onChange={e => setPaymentDetails({ ...paymentDetails, cardExpiry: e.target.value })} maxLength={5} />
                                                     <input type="password" placeholder="CVV" className="bg-transparent border-b-2 border-black py-3 text-sm font-black uppercase tracking-tight outline-none" value={paymentDetails.cardCvv} onChange={e => setPaymentDetails({ ...paymentDetails, cardCvv: e.target.value })} maxLength={3} />
                                                 </div>
@@ -253,7 +253,7 @@ export default function Cart() {
                         {/* Right Column: Checkout Summary */}
                         <div className="lg:col-span-5 h-fit">
                             <div className="border-[6px] border-black p-10 space-y-8 sticky top-24">
-                                <h3 className="text-2xl font-black italic uppercase tracking-tighter border-b-2 border-black pb-4">Financial Log</h3>
+                                <h3 className="text-2xl font-black italic uppercase tracking-tighter border-b-2 border-black pb-4">Order Summary</h3>
 
                                 <div className="space-y-4 max-h-60 overflow-y-auto pr-4 scrollbar-hide">
                                     {cartItems.map(item => (
@@ -265,34 +265,34 @@ export default function Cart() {
                                 </div>
 
                                 <div className="pt-8 border-t-2 border-black space-y-4">
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 italic">Vouchers / Tokens</h4>
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 italic">Coupons</h4>
                                     <div className="flex gap-4">
-                                        <input className="flex-grow bg-gray-50 border-2 border-transparent focus:border-black px-4 py-3 text-xs font-black uppercase outline-none" placeholder="ENTER TOKEN" value={couponCode} onChange={e => setCouponCode(e.target.value)} />
-                                        <button onClick={applyCoupon} className="bg-black text-white px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-black transition-all italic underline underline-offset-4">REDEEM</button>
+                                        <input className="flex-grow bg-gray-50 border-2 border-transparent focus:border-black px-4 py-3 text-xs font-black uppercase outline-none" placeholder="ENTER COUPON CODE" value={couponCode} onChange={e => setCouponCode(e.target.value)} />
+                                        <button onClick={applyCoupon} className="bg-black text-white px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-black transition-all italic underline underline-offset-4">APPLY COUPON</button>
                                     </div>
                                 </div>
 
                                 <div className="pt-8 border-t-2 border-black space-y-3">
                                     <div className="flex justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest italic">
-                                        <span>Gross Manifest Value</span>
+                                        <span>Subtotal</span>
                                         <span>₹{cartItems.reduce((acc, item) => acc + (Number(item.base_price) * item.qty), 0).toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-[10px] font-black text-primary uppercase tracking-widest italic">
-                                        <span>Catalogue Deduction</span>
+                                        <span>Discount</span>
                                         <span>- ₹{(cartItems.reduce((acc, item) => acc + (Number(item.base_price) * item.qty), 0) - sellingPriceTotal).toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-[10px] font-black text-primary uppercase tracking-widest italic">
-                                        <span>Token Benefit</span>
+                                        <span>Coupon Discount</span>
                                         <span>- ₹{discountAmount.toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between pt-6">
-                                        <span className="text-xl font-black italic uppercase tracking-tighter">Settlement Total</span>
+                                        <span className="text-xl font-black italic uppercase tracking-tighter">Total Amount</span>
                                         <span className="text-3xl font-black italic text-black">₹{Math.max(0, sellingPriceTotal - discountAmount).toLocaleString()}</span>
                                     </div>
                                 </div>
 
-                                <button onClick={confirmOrder} disabled={!selectedAddress} className="w-full bg-black text-white py-6 text-xs font-black uppercase tracking-[0.3em] italic shadow-[12px_12px_0px_0px_rgba(255,210,0,1)] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all disabled:opacity-50">
-                                    EXECUTE ORDER
+                                <button onClick={confirmOrder} disabled={!selectedLogistics} className="w-full bg-black text-white py-6 text-xs font-black uppercase tracking-[0.3em] italic shadow-[12px_12px_0px_0px_rgba(255,210,0,1)] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all disabled:opacity-50">
+                                    PLACE ORDER
                                 </button>
                             </div>
                         </div>
@@ -307,7 +307,7 @@ export default function Cart() {
             <div className="max-w-7xl mx-auto">
                 <div className="mb-16 flex items-baseline justify-between border-b-2 border-black pb-8">
                     <h1 className="text-5xl font-black italic uppercase tracking-tighter">Repository / <span className="text-primary italic">01</span></h1>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic italic">Awaiting Settlement of {cartItems.length} Masterpieces</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic italic">Items in Cart: {cartItems.length} Products</span>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
@@ -357,14 +357,14 @@ export default function Cart() {
 
                     <div className="lg:col-span-4 h-fit">
                         <div className="border-[6px] border-black p-10 space-y-8 sticky top-24">
-                            <h2 className="text-2xl font-black italic uppercase tracking-tighter">Consolidation</h2>
+                            <h2 className="text-2xl font-black italic uppercase tracking-tighter">Summary</h2>
                             <div className="space-y-4">
                                 <div className="flex justify-between items-baseline">
-                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Gross Value</span>
+                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Subtotal</span>
                                     <span className="text-lg font-black italic">₹{total.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between items-baseline pt-4 border-t border-gray-100">
-                                    <span className="text-lg font-black italic uppercase tracking-tighter">Net Total</span>
+                                    <span className="text-lg font-black italic uppercase tracking-tighter">Total</span>
                                     <span className="text-4xl font-black italic text-black">₹{total.toLocaleString()}</span>
                                 </div>
                             </div>
@@ -378,7 +378,7 @@ export default function Cart() {
                                 onClick={handleCheckout}
                                 className="w-full bg-black text-white py-6 text-xs font-black uppercase tracking-[0.3em] italic shadow-[12px_12px_0px_0px_rgba(255,210,0,1)] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all group overflow-hidden relative"
                             >
-                                <span className="relative z-10">PROCEED TO SETTLEMENT</span>
+                                <span className="relative z-10">PROCEED TO CHECKOUT</span>
                             </button>
                         </div>
                     </div>

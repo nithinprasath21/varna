@@ -94,7 +94,7 @@ export default function NGODashboard() {
         <div className="min-h-screen bg-white flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
                 <div className="w-12 h-12 border-4 border-black border-t-primary animate-spin" />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] italic">Accessing NGO Ledger</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] italic">Loading...</span>
             </div>
         </div>
     );
@@ -107,14 +107,14 @@ export default function NGODashboard() {
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-end border-b-4 border-black pb-8 gap-8">
                     <div>
                         <h1 className="text-6xl font-black italic uppercase tracking-tighter">NGO.<span className="text-primary not-italic">COMMAND</span></h1>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic mt-2">Overseeing the Artisan Ecosystem / {user.email.toUpperCase()}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic mt-2">Managing Artisans / {user.email.toUpperCase()}</p>
                     </div>
                     <div className="flex gap-6">
                         <button
                             onClick={() => setShowLinkModal(true)}
                             className="bg-primary text-black px-8 py-4 text-[10px] font-black uppercase tracking-[0.3em] italic hover:bg-black hover:text-white transition-all flex items-center gap-3 border-2 border-black"
                         >
-                            <UserPlus size={14} strokeWidth={3} /> ESTABLISH NEW LINK
+                            <UserPlus size={14} strokeWidth={3} /> LINK ARTISAN
                         </button>
                         <button
                             onClick={logout}
@@ -128,9 +128,9 @@ export default function NGODashboard() {
                 {/* Aggregate Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-1 border-4 border-black bg-black">
                     {[
-                        { label: 'MANAGED OPERATORS', value: artisans.length, icon: <Users size={20} /> },
-                        { label: 'TOTAL ECOSYSTEM REVENUE', value: `₹${ngoStats?.total_revenue?.toLocaleString() || '0'}`, icon: <TrendingUp size={20} /> },
-                        { label: 'PRODUCTS MANAGED', value: ngoStats?.total_products || '0', icon: <LayoutDashboard size={20} /> },
+                        { label: 'TOTAL ARTISANS', value: artisans.length, icon: <Users size={20} /> },
+                        { label: 'TOTAL REVENUE', value: `₹${ngoStats?.total_revenue?.toLocaleString() || '0'}`, icon: <TrendingUp size={20} /> },
+                        { label: 'TOTAL PRODUCTS', value: ngoStats?.total_products || '0', icon: <LayoutDashboard size={20} /> },
                         { label: 'TOP PERFORMER', value: ngoStats?.top_artisans?.[0]?.store_name || 'N/A', icon: <div className="w-5 h-5 bg-primary rounded-sm" /> }
                     ].map((stat, idx) => (
                         <div key={idx} className="bg-white p-8 space-y-2">
@@ -199,24 +199,24 @@ export default function NGODashboard() {
 
                 <div className="space-y-8">
                     <h2 className="text-3xl font-black italic uppercase tracking-tighter flex items-center gap-4">
-                        <Users size={32} strokeWidth={3} /> THE ARTISAN MANIFEST
+                        <Users size={32} strokeWidth={3} /> ARTISAN LIST
                     </h2>
 
                     <div className="bg-white border-4 border-black overflow-hidden">
                         <table className="min-w-full">
                             <thead>
                                 <tr className="bg-black text-white">
-                                    <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest italic">OPERATOR / STUDIO</th>
-                                    <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest italic">CONTACT PARAMETERS</th>
+                                    <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest italic">ARTISAN / STORE NAME</th>
+                                    <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest italic">CONTACT DETAILS</th>
                                     <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest italic text-center">STATUS</th>
-                                    <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest italic">PROTOCOL ACTIONS</th>
+                                    <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest italic">ACTIONS</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y-2 divide-black">
                                 {artisans.map((artisan) => (
                                     <tr key={artisan.id} className="group hover:bg-gray-50 transition-colors">
                                         <td className="px-8 py-8 whitespace-nowrap">
-                                            <div className="text-xl font-black italic uppercase tracking-tighter text-black">{artisan.store_name || 'UNDEFINED STUDIO'}</div>
+                                            <div className="text-xl font-black italic uppercase tracking-tighter text-black">{artisan.store_name || 'UNDEFINED STORE'}</div>
                                             <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">{artisan.email}</div>
                                         </td>
                                         <td className="px-8 py-8 whitespace-nowrap">
@@ -231,7 +231,7 @@ export default function NGODashboard() {
                                         </td>
                                         <td className="px-8 py-8 whitespace-nowrap text-center">
                                             <span className="inline-block bg-primary text-black px-4 py-1 text-[9px] font-black uppercase tracking-widest italic border-2 border-black rotate-2">
-                                                ACTIVE LINK
+                                                ACTIVE
                                             </span>
                                         </td>
                                         <td className="px-8 py-8 whitespace-nowrap text-right space-x-4">
@@ -239,13 +239,13 @@ export default function NGODashboard() {
                                                 onClick={() => viewArtisanStats(artisan)}
                                                 className="bg-white text-black px-4 py-2 text-[9px] font-black uppercase tracking-widest italic hover:bg-black hover:text-white transition-all border-2 border-black inline-flex items-center gap-2"
                                             >
-                                                <TrendingUp size={12} /> ANALYTICS
+                                                <TrendingUp size={12} /> VIEW STATS
                                             </button>
                                             <button
                                                 onClick={() => handleRelease(artisan.id)}
                                                 className="text-gray-400 px-4 py-2 text-[9px] font-black uppercase tracking-widest italic hover:text-red-600 transition-all underline underline-offset-4"
                                             >
-                                                TERMINATE
+                                                REMOVE
                                             </button>
                                         </td>
                                     </tr>
@@ -253,7 +253,7 @@ export default function NGODashboard() {
                                 {artisans.length === 0 && (
                                     <tr>
                                         <td colSpan="4" className="px-8 py-20 text-center">
-                                            <p className="text-xl font-black italic uppercase tracking-tighter text-gray-200">NO MANAGED OPERATORS IN THE LEDGER</p>
+                                            <p className="text-xl font-black italic uppercase tracking-tighter text-gray-200">NO TOTAL ARTISANS IN THE LEDGER</p>
                                         </td>
                                     </tr>
                                 )}
@@ -290,7 +290,7 @@ export default function NGODashboard() {
                                     />
                                 </div>
                                 <button type="submit" className="w-full bg-black text-white py-4 text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-black transition-all border-2 border-transparent">
-                                    INITIATE PROTOCOL
+                                    SEND INVITE
                                 </button>
                             </form>
                         </motion.div>
@@ -376,13 +376,13 @@ export default function NGODashboard() {
                                     </div>
 
                                     <div>
-                                        <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-8">Top Performing Assets</h3>
+                                        <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-8">Top Products</h3>
                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
                                             {artisanStats.best_sellers.map((item, idx) => (
                                                 <div key={idx} className="bg-black text-white p-6 border-l-4 border-primary">
                                                     <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2 italic">RANK #{idx + 1}</div>
                                                     <div className="text-xl font-black italic uppercase tracking-tighter leading-none mb-4">{item.title}</div>
-                                                    <div className="text-primary text-xs font-black uppercase tracking-widest">{item.total_sold} UNITS DEPLOYED</div>
+                                                    <div className="text-primary text-xs font-black uppercase tracking-widest">{item.total_sold} UNITS SOLD</div>
                                                 </div>
                                             ))}
                                         </div>
