@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { useState, useEffect } from 'react';
-import { Search, User, ShoppingBag, LogOut, Menu, Mic, X } from 'lucide-react';
+import { useState } from 'react';
+import { Search, User, ShoppingBag, LogOut, Menu } from 'lucide-react';
 
 export default function Navbar() {
     const { user, logout } = useAuth();
@@ -60,7 +60,7 @@ export default function Navbar() {
 
 
     return (
-        <div className="flex flex-col relative">
+        <div className="flex flex-col">
             {/* Top Announcement Banner */}
             <div className="bg-primary py-2.5 text-center relative overflow-hidden">
                 <div className="flex justify-center items-center gap-12 text-[9px] font-black uppercase tracking-[0.3em] text-black italic animate-marquee">
@@ -85,7 +85,7 @@ export default function Navbar() {
                     </div>
 
                     {/* Center: Logo */}
-                    <div className="flex-1 lg:flex-none flex justify-center lg:absolute lg:left-1/2 lg:-translate-x-1/2">
+                    <div className="absolute left-1/2 -translate-x-1/2">
                         <Link to="/" className="group flex items-center gap-2">
                             <span className="text-4xl font-black italic tracking-tighter text-black transition-all group-hover:blur-[1px]">VARNA.</span>
                         </Link>
@@ -94,18 +94,15 @@ export default function Navbar() {
                     {/* Right: Actions */}
                     <div className="flex items-center gap-8">
                         {/* Search Bar - Minimalist */}
-                        <form onSubmit={handleSearch} className="hidden md:flex relative group items-center bg-gray-50 border-b-2 border-transparent focus-within:border-black transition-all">
+                        <form onSubmit={handleSearch} className="hidden md:flex relative group">
                             <input
                                 type="text"
                                 placeholder="SEARCH ARCHIVE"
-                                className="w-32 focus:w-48 transition-all duration-500 bg-transparent text-black placeholder-gray-400 text-[10px] font-black uppercase tracking-widest px-4 py-2 outline-none italic"
+                                className="w-32 focus:w-48 transition-all duration-500 bg-gray-50 text-[10px] font-black uppercase tracking-widest px-4 py-2 border-b-2 border-transparent focus:border-black outline-none italic"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            <button type="button" onClick={handleVoiceSearch} className={`mr-2 transition-colors ${isListening ? 'text-red-600 animate-pulse' : 'text-gray-400 hover:text-black'}`}>
-                                <Mic size={14} strokeWidth={3} />
-                            </button>
-                            <button type="submit" className="pr-3 text-gray-400 group-hover:text-black transition-colors">
+                            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-black transition-colors">
                                 <Search size={14} strokeWidth={3} />
                             </button>
                         </form>
@@ -137,50 +134,13 @@ export default function Navbar() {
                             )}
 
                             {/* Mobile Menu Icon */}
-                            <button
-                                className="lg:hidden text-black pt-1 z-50 relative"
-                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            >
-                                {isMobileMenuOpen ? <X size={24} strokeWidth={3} /> : <Menu size={24} strokeWidth={3} />}
+                            <button className="lg:hidden text-black pt-1">
+                                <Menu size={24} strokeWidth={3} />
                             </button>
                         </div>
                     </div>
                 </div>
             </nav>
-
-            {/* Mobile Menu Overlay */}
-            {isMobileMenuOpen && (
-                <div className="fixed inset-0 bg-white z-40 flex flex-col pt-32 px-8 lg:hidden animate-in slide-in-from-top-10 fade-in duration-300">
-                    <div className="flex flex-col gap-8 text-2xl font-black uppercase tracking-tighter italic">
-                        <form onSubmit={handleSearch} className="flex relative group items-center bg-gray-50 border-b-2 border-black mb-8">
-                            <input
-                                type="text"
-                                placeholder="SEARCH ARCHIVE"
-                                className="w-full bg-transparent text-black placeholder-gray-400 text-sm font-black uppercase tracking-widest px-4 py-4 outline-none italic"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                            <button type="button" onClick={handleVoiceSearch} className={`mr-4 transition-colors ${isListening ? 'text-red-600 animate-pulse' : 'text-gray-400'}`}>
-                                <Mic size={20} strokeWidth={3} />
-                            </button>
-                            <button type="submit" className="pr-4 text-black">
-                                <Search size={20} strokeWidth={3} />
-                            </button>
-                        </form>
-
-                        <Link to="/shop" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-primary transition-colors">COLLECTION</Link>
-                        <Link to="/shop?category=Pottery" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-primary transition-colors">POTTERY</Link>
-                        <Link to="/shop?category=Textile" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-primary transition-colors">TEXTILES</Link>
-                        <Link to="/shop?category=Decor" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-primary transition-colors">DECOR</Link>
-
-                        {user && (
-                            <button onClick={() => { logout(); setIsMobileMenuOpen(false); }} className="text-left text-gray-400 hover:text-red-600 transition-colors mt-8 text-sm tracking-widest">
-                                DISCONNECT SESSION (LOGOUT)
-                            </button>
-                        )}
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

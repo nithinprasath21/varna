@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Users, UserPlus, LogOut, ExternalLink, ShieldCheck, Mail, Phone, TrendingUp, X, LayoutDashboard } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from 'recharts';
+import { motion } from 'framer-motion';
+import { Users, UserPlus, LogOut, ExternalLink, ShieldCheck, Mail, Phone } from 'lucide-react';
 
 export default function NGODashboard() {
     const { user, logout } = useAuth();
@@ -49,46 +48,26 @@ export default function NGODashboard() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('Artisan successfully released to the wild.');
-            fetchAllData(); // Refresh list
+            fetchArtisans(); // Refresh list
         } catch (err) {
             toast.error('Failed to terminate management link.');
         }
     };
 
-    const handleLinkArtisan = async (e) => {
-        e.preventDefault();
-        if (!linkEmail) return;
-
+    const handleLinkTest = async () => {
+        const email = prompt("ENTER ARTISAN EMAIL TO ESTABLISH LINK:");
+        if (!email) return;
         try {
             const token = localStorage.getItem('token');
             await axios.post('http://localhost:5000/ngo/link-artisan', { artisanEmail: linkEmail }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('ARTISAN LINK ESTABLISHED');
-            setLinkEmail('');
-            setShowLinkModal(false);
-            fetchAllData();
+            fetchArtisans();
         } catch (err) {
-            toast.error(err.response?.data?.message || 'PROTOCOL ERROR: LINK FAILED');
+            toast.error('PROTOCOL ERROR: LINK FAILED');
         }
     }
-
-    const viewArtisanStats = async (artisan) => {
-        setSelectedArtisan(artisan);
-        setStatsLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get(`http://localhost:5000/ngo/artisan/${artisan.id}/stats`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setArtisanStats(res.data);
-        } catch (err) {
-            console.error(err);
-            toast.error("Failed to retrieve artisan intelligence.");
-        } finally {
-            setStatsLoading(false);
-        }
-    };
 
     if (loading) return (
         <div className="min-h-screen bg-white flex items-center justify-center">
@@ -99,10 +78,8 @@ export default function NGODashboard() {
         </div>
     );
 
-    const COLORS = ['#FFD200', '#000000', '#333333', '#666666', '#999999'];
-
     return (
-        <div className="min-h-screen bg-white py-16 px-8 relative">
+        <div className="min-h-screen bg-white py-16 px-8">
             <div className="max-w-7xl mx-auto space-y-16">
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-end border-b-4 border-black pb-8 gap-8">
                     <div>
@@ -111,7 +88,7 @@ export default function NGODashboard() {
                     </div>
                     <div className="flex gap-6">
                         <button
-                            onClick={() => setShowLinkModal(true)}
+                            onClick={handleLinkTest}
                             className="bg-primary text-black px-8 py-4 text-[10px] font-black uppercase tracking-[0.3em] italic hover:bg-black hover:text-white transition-all flex items-center gap-3 border-2 border-black"
                         >
                             <UserPlus size={14} strokeWidth={3} /> ESTABLISH NEW LINK
@@ -125,77 +102,23 @@ export default function NGODashboard() {
                     </div>
                 </header>
 
-                {/* Aggregate Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-1 border-4 border-black bg-black">
                     {[
                         { label: 'MANAGED OPERATORS', value: artisans.length, icon: <Users size={20} /> },
-                        { label: 'TOTAL ECOSYSTEM REVENUE', value: `₹${ngoStats?.total_revenue?.toLocaleString() || '0'}`, icon: <TrendingUp size={20} /> },
-                        { label: 'PRODUCTS MANAGED', value: ngoStats?.total_products || '0', icon: <LayoutDashboard size={20} /> },
-                        { label: 'TOP PERFORMER', value: ngoStats?.top_artisans?.[0]?.store_name || 'N/A', icon: <div className="w-5 h-5 bg-primary rounded-sm" /> }
+                        { label: 'VERIFIED STATUS', value: 'OPTIMAL', icon: <ShieldCheck size={20} /> },
+                        { label: 'REGION ACCESS', value: 'GLOBAL', icon: <ExternalLink size={20} /> },
+                        { label: 'PROTOCOL VERSION', value: '1.0.4-L', icon: <div className="w-5 h-5 bg-primary rounded-sm" /> }
                     ].map((stat, idx) => (
                         <div key={idx} className="bg-white p-8 space-y-2">
                             <div className="flex justify-between items-center text-gray-300">
                                 {stat.icon}
                                 <span className="text-[8px] font-black tracking-widest uppercase italic">STAT.{idx + 1}</span>
                             </div>
-                            <p className="text-3xl font-black italic tracking-tighter break-words">{stat.value}</p>
+                            <p className="text-4xl font-black italic tracking-tighter">{stat.value}</p>
                             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">{stat.label}</p>
                         </div>
                     ))}
                 </div>
-
-                {/* NGO Level Charts */}
-                {ngoStats && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="border-4 border-black p-8 bg-white space-y-4">
-                            <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-2">
-                                <TrendingUp size={18} /> Top Revenue Generators
-                            </h3>
-                            <div className="h-64 w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={ngoStats.top_artisans} layout="vertical">
-                                        <CartesianGrid strokeDasharray="3 3" opacity={0.1} horizontal={false} />
-                                        <XAxis type="number" hide />
-                                        <YAxis dataKey="store_name" type="category" width={100} tick={{ fontSize: 10, fontFamily: 'monospace', fontWeight: 'bold' }} />
-                                        <Tooltip
-                                            cursor={{ fill: '#f3f4f6' }}
-                                            contentStyle={{ backgroundColor: '#000', border: 'none', color: '#fff' }}
-                                            itemStyle={{ fontFamily: 'monospace', fontSize: '12px' }}
-                                        />
-                                        <Bar dataKey="revenue" fill="#000" barSize={20} />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-
-                        <div className="border-4 border-black p-8 bg-white space-y-4">
-                            <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-2">
-                                <LayoutDashboard size={18} /> Ecosystem Categories
-                            </h3>
-                            <div className="h-64 w-full flex items-center justify-center">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={ngoStats.category_distribution}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={50}
-                                            outerRadius={80}
-                                            paddingAngle={5}
-                                            dataKey="count"
-                                        >
-                                            {ngoStats.category_distribution?.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip />
-                                        <Legend verticalAlign="bottom" height={36} iconSize={8} wrapperStyle={{ fontSize: '10px', fontFamily: 'monospace' }} />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-                    </div>
-                )}
 
                 <div className="space-y-8">
                     <h2 className="text-3xl font-black italic uppercase tracking-tighter flex items-center gap-4">
@@ -234,18 +157,12 @@ export default function NGODashboard() {
                                                 ACTIVE LINK
                                             </span>
                                         </td>
-                                        <td className="px-8 py-8 whitespace-nowrap text-right space-x-4">
-                                            <button
-                                                onClick={() => viewArtisanStats(artisan)}
-                                                className="bg-white text-black px-4 py-2 text-[9px] font-black uppercase tracking-widest italic hover:bg-black hover:text-white transition-all border-2 border-black inline-flex items-center gap-2"
-                                            >
-                                                <TrendingUp size={12} /> ANALYTICS
-                                            </button>
+                                        <td className="px-8 py-8 whitespace-nowrap text-right">
                                             <button
                                                 onClick={() => handleRelease(artisan.id)}
-                                                className="text-gray-400 px-4 py-2 text-[9px] font-black uppercase tracking-widest italic hover:text-red-600 transition-all underline underline-offset-4"
+                                                className="bg-black text-white px-6 py-3 text-[9px] font-black uppercase tracking-widest italic hover:bg-red-600 transition-all border-2 border-transparent"
                                             >
-                                                TERMINATE
+                                                TERMINATE LINK
                                             </button>
                                         </td>
                                     </tr>
