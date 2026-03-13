@@ -15,7 +15,7 @@ export default function Orders() {
     const fetchOrders = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5000/orders', {
+            const res = await axios.get(`${import.meta.env.API_URL}/orders`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setOrders(res.data);
@@ -78,7 +78,6 @@ export default function Orders() {
                                 key={order.id}
                                 className="group relative"
                             >
-                                {/* Order Metadata Header */}
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-4">
@@ -108,7 +107,6 @@ export default function Orders() {
                                     </div>
                                 </div>
 
-                                {/* Order Items Grid */}
                                 <div className="grid grid-cols-1 gap-1">
                                     {order.items.map((item, idx) => (
                                         <div key={idx} className="bg-gray-50 p-8 flex flex-col md:flex-row gap-8 items-center group/item hover:bg-black hover:text-white transition-all duration-500">
@@ -140,7 +138,6 @@ export default function Orders() {
                                     ))}
                                 </div>
 
-                                {/* Order Action Footer */}
                                 <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
                                     <div className="flex items-center gap-2">
                                         <div className={`w-2 h-2 rounded-full ${order.status === 'DELIVERED' ? 'bg-green-500' : 'bg-primary'}`} />

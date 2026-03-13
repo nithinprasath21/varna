@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { Star, ShieldCheck, Truck, RotateCcw, ArrowRight, Cpu } from 'lucide-react';
+import { Star, ShieldCheck, Truck, RotateCcw, ArrowRight, Cpu, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function ProductDetails() {
@@ -13,14 +13,12 @@ export default function ProductDetails() {
     const { addToCart, cartItems, updateQuantity } = useCart();
     const { user } = useAuth();
 
-    // State
     const [product, setProduct] = useState(null);
     const [selectedImage, setSelectedImage] = useState('');
     const [recommendations, setRecommendations] = useState([]);
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Review Form State
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [reviewRating, setReviewRating] = useState(5);
     const [showAiNote, setShowAiNote] = useState(false);
@@ -36,7 +34,7 @@ export default function ProductDetails() {
         }
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/reviews', {
+            await axios.post(`${import.meta.env.API_URL}/reviews`, {
                 product_id: product.id,
                 rating: reviewRating,
                 title: reviewTitle,
@@ -62,13 +60,13 @@ export default function ProductDetails() {
     const fetchProductDetails = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`http://localhost:5000/shop/products/${id}`);
+            const res = await axios.get(`${import.meta.env.API_URL}/shop/products/${id}`);
             setProduct(res.data);
-            setSelectedImage(res.data.image_url);
+            const urls = res.data.image_urls?.length > 0 ? res.data.image_urls : (res.data.image_url ? [res.data.image_url] : []);
+            setSelectedImage(urls[0] || '');
             fetchRecommendations(res.data.category, res.data.id);
 
-            // Fetch all reviews
-            const reviewsRes = await axios.get(`http://localhost:5000/reviews/${id}`);
+            const reviewsRes = await axios.get(`${import.meta.env.API_URL}/reviews/${id}`);
             setReviews(reviewsRes.data);
         } catch (err) {
             console.error(err);
@@ -80,7 +78,7 @@ export default function ProductDetails() {
 
     const fetchRecommendations = async (category, currentId) => {
         try {
-            const res = await axios.get(`http://localhost:5000/shop/recommendations?category=${category}&excludeId=${currentId}`);
+            const res = await axios.get(`${import.meta.env.API_URL}/shop/recommendations?category=${category}&excludeId=${currentId}`);
             setRecommendations(res.data);
         } catch (err) {
             console.error("Failed recommendations", err);
@@ -106,7 +104,6 @@ export default function ProductDetails() {
 
     return (
         <div className="min-h-screen bg-white pb-40">
-            {/* Header / Breadcrumb */}
             <div className="bg-white border-b border-gray-100 py-6 mb-12">
                 <div className="max-w-[1500px] mx-auto px-8 flex justify-between items-center">
                     <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
@@ -122,18 +119,38 @@ export default function ProductDetails() {
             <div className="max-w-[1500px] mx-auto px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
 
-                    {/* Left Column: Visuals (Col 7) */}
                     <div className="lg:col-span-7 space-y-8">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.98 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="aspect-[4/5] bg-gray-50 overflow-hidden relative border-2 border-black/5"
+                            className="aspect-[4/5] bg-gray-50 overflow-hidden relative border-2 border-black/5 group"
                         >
                             {selectedImage ? (
                                 <img src={selectedImage} alt={product.title} className="w-full h-full object-cover" />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-8xl font-black italic text-gray-100">VARNA</div>
                             )}
+
+                            {(() => {
+                                const urls = product.image_urls?.length > 0 ? product.image_urls : (product.image_url ? [product.image_url] : []);
+                                if (urls.length > 1) {
+                                    const currentIndex = urls.indexOf(selectedImage) !== -1 ? urls.indexOf(selectedImage) : 0;
+                                    const handleNext = () => setSelectedImage(urls[(currentIndex + 1) % urls.length]);
+                                    const handlePrev = () => setSelectedImage(urls[(currentIndex - 1 + urls.length) % urls.length]);
+                                    
+                                    return (
+                                        <>
+                                            <button onClick={handlePrev} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-3 hover:bg-black hover:text-white transition-all opacity-0 group-hover:opacity-100 border-2 border-black backdrop-blur-sm">
+                                                <ChevronLeft size={24} strokeWidth={3} />
+                                            </button>
+                                            <button onClick={handleNext} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-3 hover:bg-black hover:text-white transition-all opacity-0 group-hover:opacity-100 border-2 border-black backdrop-blur-sm">
+                                                <ChevronRight size={24} strokeWidth={3} />
+                                            </button>
+                                        </>
+                                    );
+                                }
+                                return null;
+                            })()}
 
                             {product.is_premium && (
                                 <div className="absolute top-8 left-8 bg-black text-white px-6 py-3 font-black italic text-xs tracking-widest uppercase shadow-[6px_6px_0px_0px_rgba(255,210,0,1)]">
@@ -142,20 +159,27 @@ export default function ProductDetails() {
                             )}
                         </motion.div>
 
-                        <div className="grid grid-cols-4 gap-4">
-                            {[product.image_url, product.image_url, product.image_url].map((img, idx) => (
-                                <div
-                                    key={idx}
-                                    onClick={() => setSelectedImage(img)}
-                                    className={`aspect-square cursor-pointer border-4 transition-all ${selectedImage === img ? 'border-primary' : 'border-transparent grayscale hover:grayscale-0'}`}
-                                >
-                                    {img && <img src={img} className="w-full h-full object-cover" />}
-                                </div>
-                            ))}
-                        </div>
+                        {(() => {
+                            const urls = product.image_urls?.length > 0 ? product.image_urls : (product.image_url ? [product.image_url] : []);
+                            if (urls.length > 1) {
+                                return (
+                                    <div className="grid grid-cols-4 gap-4">
+                                        {urls.map((img, idx) => (
+                                            <div
+                                                key={idx}
+                                                onClick={() => setSelectedImage(img)}
+                                                className={`aspect-square cursor-pointer border-4 transition-all ${selectedImage === img ? 'border-primary' : 'border-transparent grayscale hover:grayscale-0'}`}
+                                            >
+                                                {img && <img src={img} className="w-full h-full object-cover" />}
+                                            </div>
+                                        ))}
+                                    </div>
+                                );
+                            }
+                            return null;
+                        })()}
                     </div>
 
-                    {/* Right Column: Essentials (Col 5) */}
                     <div className="lg:col-span-5 space-y-12 h-fit sticky top-24">
                         <div className="space-y-4">
                             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary bg-black px-4 py-2 inline-block italic">{product.category}</span>
@@ -249,7 +273,6 @@ export default function ProductDetails() {
                     </div>
                 </div>
 
-                {/* Reviews Section */}
                 <div className="mt-40 border-t-8 border-black pt-20">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
                         <div className="lg:col-span-4 space-y-12">
@@ -364,7 +387,6 @@ export default function ProductDetails() {
                     </div>
                 </div>
 
-                {/* Recommendations */}
                 {recommendations.length > 0 && (
                     <div className="mt-40">
                         <div className="flex justify-between items-end mb-12 border-b-2 border-black pb-8">

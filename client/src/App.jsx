@@ -19,15 +19,13 @@ const Orders = lazy(() => import('./pages/Orders'));
 import { CartProvider } from './context/CartContext';
 import Layout from './components/Layout';
 
-// Root Redirect Component
 const RootRedirect = () => {
   const { user } = useAuth();
   if (user?.role === 'ARTISAN') return <Navigate to="/dashboard" replace />;
-  if (user?.role === 'NGO') return <Navigate to="/dashboard" replace />; // Assuming NGO also strictly dashboard
+  if (user?.role === 'NGO') return <Navigate to="/dashboard" replace />;
   return <Home />;
 };
 
-// Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
 
@@ -38,13 +36,12 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/dashboard" replace />; // Or unauthorized page
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
 };
 
-// Dashboard Placeholder
 const Dashboard = () => {
   const { user, logout } = useAuth();
 
@@ -56,19 +53,17 @@ const Dashboard = () => {
     return <NGODashboard />;
   }
 
-  // Customers shouldn't be here, redirect to shop
   return <Navigate to="/shop" replace />;
 };
 
 function App() {
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}>
       <Toaster position="top-right" />
       <AuthProvider>
         <CartProvider>
           <Suspense fallback={<div className="h-screen flex items-center justify-center">Loading VARNA...</div>}>
             <Routes>
-              {/* Public Routes with Layout */}
               <Route element={<Layout />}>
                 <Route path="/" element={<RootRedirect />} />
                 <Route path="/shop" element={<Shop />} />
@@ -87,12 +82,10 @@ function App() {
                 } />
               </Route>
 
-              {/* Auth Routes */}
               <Route path="/auth/login" element={<Login />} />
               <Route path="/auth/register" element={<Register />} />
               <Route path="/register" element={<Navigate to="/auth/register" replace />} />
 
-              {/* Protected Dashboard (No Layout, or Different Layout) */}
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />

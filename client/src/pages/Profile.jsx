@@ -34,7 +34,7 @@ export default function Profile() {
     const fetchProfile = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5000/auth/profile', {
+            const res = await axios.get(`${import.meta.env.API_URL}/auth/profile`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setProfile(res.data);
@@ -59,7 +59,7 @@ export default function Profile() {
         if (!window.confirm('Delete this address?')) return;
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/auth/address/${id}`, {
+            await axios.delete(`${import.meta.env.API_URL}/auth/address/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('Logistics deleted');
@@ -75,13 +75,13 @@ export default function Profile() {
             const token = localStorage.getItem('token');
             if (currentLogistics.id) {
                 // Update
-                await axios.put(`http://localhost:5000/auth/address/${currentLogistics.id}`, currentLogistics, {
+                await axios.put(`${import.meta.env.API_URL}/auth/address/${currentLogistics.id}`, currentLogistics, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 toast.success('Logistics Updated!');
             } else {
                 // Add
-                await axios.post('http://localhost:5000/auth/address', currentLogistics, {
+                await axios.post(`${import.meta.env.API_URL}/auth/address`, currentLogistics, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 toast.success('Logistics Added!');
@@ -98,7 +98,7 @@ export default function Profile() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            await axios.put('http://localhost:5000/auth/profile', userProfileData, {
+            await axios.put(`${import.meta.env.API_URL}/auth/profile`, userProfileData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('Profile Updated!');
@@ -115,7 +115,6 @@ export default function Profile() {
     };
 
     if (loading) return (
-        // ... (previous return)
         <div className="min-h-screen bg-white flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
                 <div className="w-12 h-12 border-4 border-black border-t-primary animate-spin" />
@@ -146,7 +145,6 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {/* Profile Dashboard Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-1 mb-20">
                     <motion.div
                         whileHover={{ y: -5 }}
@@ -191,7 +189,6 @@ export default function Profile() {
                     </motion.div>
                 </div>
 
-                {/* Logistics Section */}
                 <div id="addresses-section" className="space-y-12">
                     <div className="flex justify-between items-baseline border-b-2 border-black pb-6">
                         <h2 className="text-4xl font-black italic uppercase tracking-tighter">Logistics Records</h2>
@@ -238,7 +235,6 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {/* Logistics Management Modal / Overlay */}
                 <AnimatePresence>
                     {showLogisticsForm && (
                         <motion.div
@@ -334,7 +330,6 @@ export default function Profile() {
                     )}
                 </AnimatePresence>
 
-                {/* Profile Edit Modal */}
                 <AnimatePresence>
                     {showProfileForm && (
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">

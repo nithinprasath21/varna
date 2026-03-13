@@ -52,9 +52,6 @@ const getAllProducts = async (req, res) => {
 
         query += ' ORDER BY p.created_at DESC';
 
-        console.log("SQL:", query);
-        console.log("PARAMS:", params);
-
         const result = await db.query(query, params);
         res.json(result.rows);
     } catch (err) {
@@ -70,15 +67,16 @@ const getProductById = async (req, res) => {
             return res.status(400).json({ message: 'Invalid Product Identifier' });
         }
         const result = await db.query(
-            `SELECT p.*, a.store_name, a.bio, pm.media_url as image_url,
+            `SELECT p.*, a.store_name, a.bio, 
+                    (SELECT media_url FROM product_media WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as image_url,
+                    (SELECT COALESCE(json_agg(media_url), '[]'::json) FROM product_media WHERE product_id = p.id) as image_urls,
                     COALESCE(AVG(r.rating), 0) as average_rating,
                     COUNT(r.id) as review_count
              FROM products p 
              JOIN artisans a ON p.artisan_id = a.id 
-             LEFT JOIN product_media pm ON p.id = pm.product_id AND pm.is_primary = TRUE
              LEFT JOIN reviews r ON p.id = r.product_id
              WHERE p.id = $1
-             GROUP BY p.id, a.store_name, a.bio, pm.media_url`,
+             GROUP BY p.id, a.store_name, a.bio`,
             [id]
         );
 

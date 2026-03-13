@@ -36,7 +36,9 @@ app.use(helmet({
         },
     },
 }));
-app.use(morgan('dev'));
+app.use(morgan('dev', {
+    skip: function (req, res) { return res.statusCode < 400 }
+}));
 
 // Routes
 app.use('/auth', authRoutes);

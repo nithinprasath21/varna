@@ -31,11 +31,10 @@ export default function ArtisanDashboard() {
     const [showAddForm, setShowAddForm] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editId, setEditId] = useState(null);
-    const [activeTab, setActiveTab] = useState('inventory'); // dashboard, inventory, operations, community, store
+    const [activeTab, setActiveTab] = useState('dashboard');
     const [aiImprovements, setAiImprovements] = useState({});
     const [loadingAiProduct, setLoadingAiProduct] = useState(null);
 
-    // Reviews & Coupons State
     const [reviews, setReviews] = useState([]);
     const [coupons, setCoupons] = useState([]);
     const [artisanProfile, setArtisanProfile] = useState(null);
@@ -47,7 +46,6 @@ export default function ArtisanDashboard() {
         expiry_date: ''
     });
 
-    // Fulfillment State
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showFulfillmentModal, setShowFulfillmentModal] = useState(false);
     const [trackingNumber, setTrackingNumber] = useState('');
@@ -63,19 +61,18 @@ export default function ArtisanDashboard() {
         category: 'Pottery',
         is_premium: false,
         image_url: '',
+        image_urls: [],
         cultural_keywords: '',
         ai_cultural_note: ''
     });
 
-    // Image Upload State
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
-    const [uploadMode, setUploadMode] = useState('url'); // 'url' or 'file'
+    const [uploadMode, setUploadMode] = useState('url');
     const [isDragging, setIsDragging] = useState(false);
 
 
 
-    // Blockchain State
     const [mintingId, setMintingId] = useState(null);
     const [mintResult, setMintResult] = useState(null);
 
@@ -89,11 +86,11 @@ export default function ArtisanDashboard() {
             const config = { headers: { Authorization: `Bearer ${token}` } };
 
             const [statsRes, productsRes, reviewsRes, couponsRes, profileRes] = await Promise.all([
-                axios.get('http://localhost:5000/artisan/dashboard', config),
-                axios.get('http://localhost:5000/artisan/products', config),
-                axios.get('http://localhost:5000/reviews/artisan/all', config),
-                axios.get('http://localhost:5000/coupons/artisan/all', config),
-                axios.get('http://localhost:5000/artisan/profile', config)
+                axios.get(`${import.meta.env.API_URL}/artisan/dashboard`, config),
+                axios.get(`${import.meta.env.API_URL}/artisan/products`, config),
+                axios.get(`${import.meta.env.API_URL}/reviews/artisan/all`, config),
+                axios.get(`${import.meta.env.API_URL}/coupons/artisan/all`, config),
+                axios.get(`${import.meta.env.API_URL}/artisan/profile`, config)
             ]);
 
             setStats(statsRes.data);
@@ -102,7 +99,6 @@ export default function ArtisanDashboard() {
             setCoupons(couponsRes.data);
             setArtisanProfile(profileRes.data);
 
-            // Enforce store settings completion
             if (!profileRes.data.store_name || !profileRes.data.bank_acc_no || !profileRes.data.upi_id) {
                 setActiveTab('store');
             }
@@ -124,14 +120,15 @@ export default function ArtisanDashboard() {
             category: product.category,
             is_premium: product.is_premium || false,
             image_url: product.image_url || '',
+            image_urls: product.image_urls || (product.image_url ? [product.image_url] : []),
             cultural_keywords: product.cultural_keywords || '',
             ai_cultural_note: product.ai_cultural_note || ''
         });
         setEditId(product.id);
         setIsEditing(true);
         setShowAddForm(true);
-        setUploadMode(product.image_url?.startsWith('http') ? 'url' : 'url'); // Default to URL for existing
-        setImagePreview(product.image_url || null);
+        setUploadMode(product.image_url?.startsWith('http') || product.image_urls?.some(u => u.startsWith('http')) ? 'url' : 'url');
+        setImagePreview(product.image_url || product.image_urls?.[0] || null);
     };
 
     const handleDeleteClick = async (productId) => {
@@ -139,7 +136,7 @@ export default function ArtisanDashboard() {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/artisan/products/${productId}`, {
+            await axios.delete(`${import.meta.env.API_URL}/artisan/products/${productId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('Product deleted');
@@ -153,7 +150,7 @@ export default function ArtisanDashboard() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/coupons/create', newCoupon, {
+            await axios.post(`${import.meta.env.API_URL}/coupons/create`, newCoupon, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success("Coupon Created!");
@@ -169,8 +166,7 @@ export default function ArtisanDashboard() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            // We assume artisanProfile state is correctly updated by form inputs
-            await axios.put('http://localhost:5000/artisan/profile', artisanProfile, {
+            await axios.put(`${import.meta.env.API_URL}/artisan/profile`, artisanProfile, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success("Store Profile Updated!");
@@ -192,7 +188,6 @@ export default function ArtisanDashboard() {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
-        // Validation: Selling Price restricted from not giving value more than MRP
         if (newItem.sale_price && Number(newItem.sale_price) > Number(newItem.base_price)) {
             toast.error("Selling price cannot be higher than MRP (Base Price)");
             return;
@@ -208,12 +203,12 @@ export default function ArtisanDashboard() {
             const payload = { ...newItem, sale_price: newItem.sale_price || null };
 
             if (isEditing) {
-                await axios.put(`http://localhost:5000/artisan/products/${editId}`, payload, {
+                await axios.put(`${import.meta.env.API_URL}/artisan/products/${editId}`, payload, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 toast.success('Product updated!');
             } else {
-                await axios.post('http://localhost:5000/artisan/products', payload, {
+                await axios.post(`${import.meta.env.API_URL}/artisan/products`, payload, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 toast.success('Product added successfully!');
@@ -233,7 +228,7 @@ export default function ArtisanDashboard() {
         }
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:5000/artisan/generate-ai-note', {
+            const res = await axios.post(`${import.meta.env.API_URL}/artisan/generate-ai-note`, {
                 title: newItem.title,
                 description: newItem.description,
                 cultural_keywords: newItem.cultural_keywords
@@ -251,7 +246,7 @@ export default function ArtisanDashboard() {
         setLoadingAiProduct(productId);
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post(`http://localhost:5000/artisan/products/${productId}/improve`, {}, {
+            const res = await axios.post(`${import.meta.env.API_URL}/artisan/products/${productId}/improve`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setAiImprovements(prev => ({ ...prev, [productId]: res.data.ai_improvement_suggestions }));
@@ -264,7 +259,7 @@ export default function ArtisanDashboard() {
     };
 
     const resetForm = () => {
-        setNewItem({ title: '', description: '', base_price: '', sale_price: '', stock_qty: '', category: 'Pottery', is_premium: false, image_url: '', cultural_keywords: '', ai_cultural_note: '' });
+        setNewItem({ title: '', description: '', base_price: '', sale_price: '', stock_qty: '', category: 'Pottery', is_premium: false, image_url: '', image_urls: [], cultural_keywords: '', ai_cultural_note: '' });
         setShowAddForm(false);
         setIsEditing(false);
         setEditId(null);
@@ -274,17 +269,16 @@ export default function ArtisanDashboard() {
     };
 
     const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-                // In a real app, we'd upload to a server/Cloudinary. 
-                // For now, we'll use the base64 as the image_url to simulate success.
-                setNewItem(prev => ({ ...prev, image_url: reader.result }));
-            };
-            reader.readAsDataURL(file);
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            Promise.all(files.map(file => new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            }))).then(results => {
+                setImagePreview(results[0]);
+                setNewItem(prev => ({ ...prev, image_urls: [...prev.image_urls, ...results] }));
+            });
         }
     };
 
@@ -300,17 +294,18 @@ export default function ArtisanDashboard() {
     const handleDrop = (e) => {
         e.preventDefault();
         setIsDragging(false);
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-                setNewItem(prev => ({ ...prev, image_url: reader.result }));
-            };
-            reader.readAsDataURL(file);
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        if (files.length > 0) {
+            Promise.all(files.map(file => new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            }))).then(results => {
+                setImagePreview(results[0]);
+                setNewItem(prev => ({ ...prev, image_urls: [...prev.image_urls, ...results] }));
+            });
         } else {
-            toast.error("Please drop a valid image file");
+            toast.error("Please drop valid image files");
         }
     };
 
@@ -319,7 +314,7 @@ export default function ArtisanDashboard() {
     const handleStatusUpdate = async (orderId, newStatus) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`http://localhost:5000/orders/${orderId}/status`,
+            await axios.patch(`${import.meta.env.API_URL}/orders/${orderId}/status`,
                 { status: newStatus },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -340,7 +335,7 @@ export default function ArtisanDashboard() {
                 status: 'SHIPPED'
             };
 
-            await axios.post(`http://localhost:5000/orders/${selectedOrder.id}/fulfillment`, payload, {
+            await axios.post(`${import.meta.env.API_URL}/orders/${selectedOrder.id}/fulfillment`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -374,7 +369,7 @@ export default function ArtisanDashboard() {
         setMintingId(productId);
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:5000/blockchain/mint',
+            const res = await axios.post(`${import.meta.env.API_URL}/blockchain/mint`,
                 { productId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -409,7 +404,6 @@ export default function ArtisanDashboard() {
             </header>
 
             <main className="max-w-7xl mx-auto p-8">
-                {/* Tab Navigation */}
                 <div className="flex flex-wrap gap-4 mb-12 border-b-2 border-gray-100 pb-8">
                     {[
                         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -459,7 +453,6 @@ export default function ArtisanDashboard() {
                             </div>
                         </div>
 
-                        {/* Visual Insights Section */}
                         <div className="bg-white border border-gray-100 p-8 mb-12">
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
                                 <div>
@@ -470,7 +463,6 @@ export default function ArtisanDashboard() {
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Real-time sales analytics</p>
                                 </div>
 
-                                {/* Chart Selector */}
                                 <div className="flex flex-wrap gap-1 bg-gray-50 p-1 border border-gray-100">
                                     {[
                                         { id: 'moneyFlow', label: 'Revenue', icon: <TrendingUp size={14} /> },
@@ -830,24 +822,39 @@ export default function ArtisanDashboard() {
                                                     onDrop={handleDrop}
                                                     className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${isDragging ? 'border-primary bg-indigo-50' : 'border-gray-200 bg-gray-50 hover:bg-gray-100/50'}`}
                                                 >
-                                                    {imagePreview ? (
-                                                        <div className="relative inline-block mt-2">
-                                                            <img src={imagePreview} alt="Preview" className="max-h-40 rounded-lg shadow-sm border border-gray-200" />
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => { setImageFile(null); setImagePreview(null); setNewItem(prev => ({ ...prev, image_url: '' })); }}
-                                                                className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-lg"
-                                                            >
-                                                                &times;
-                                                            </button>
+                                                    {newItem.image_urls?.length > 0 ? (
+                                                        <div className="flex flex-wrap gap-2 justify-center mt-2">
+                                                            {newItem.image_urls.map((imgUrl, i) => (
+                                                                <div key={i} className="relative inline-block mt-2">
+                                                                    <img src={imgUrl} alt="Preview" className="h-20 w-20 object-cover rounded-lg shadow-sm border border-gray-200" />
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            const newUrls = newItem.image_urls.filter((_, idx) => idx !== i);
+                                                                            setNewItem(prev => ({ ...prev, image_urls: newUrls }));
+                                                                            if (newUrls.length === 0) setImagePreview(null);
+                                                                            else setImagePreview(newUrls[0]);
+                                                                        }}
+                                                                        className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-lg"
+                                                                    >
+                                                                        &times;
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                            {/* Allow adding more */}
+                                                            <div className="relative inline-flex items-center justify-center h-20 w-20 mt-2 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer text-gray-400">
+                                                                <span className="text-2xl">+</span>
+                                                                <input type="file" multiple className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleFileChange} accept="image/*" />
+                                                            </div>
                                                         </div>
                                                     ) : (
                                                         <div className="space-y-2">
                                                             <div className="text-4xl mb-2">📸</div>
-                                                            <p className="text-sm font-medium text-gray-700">Drag & drop your product image here</p>
+                                                            <p className="text-sm font-medium text-gray-700">Drag & drop product images here</p>
                                                             <p className="text-xs text-gray-400">or click to browse from device</p>
                                                             <input
                                                                 type="file"
+                                                                multiple
                                                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                                                 onChange={handleFileChange}
                                                                 accept="image/*"
@@ -857,18 +864,21 @@ export default function ArtisanDashboard() {
                                                 </div>
                                             ) : (
                                                 <div className="space-y-3">
-                                                    <input
-                                                        className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                                                        placeholder="https://example.com/image.jpg"
-                                                        value={newItem.image_url}
+                                                    <textarea
+                                                        className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-xs"
+                                                        placeholder="Enter multiple image URLs separated by commas (https://example.com/1.jpg, https://example.com/2.jpg)"
+                                                        value={newItem.image_urls?.join(', ') || ''}
                                                         onChange={e => {
-                                                            setNewItem({ ...newItem, image_url: e.target.value });
-                                                            setImagePreview(e.target.value);
+                                                            const urls = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                                                            setNewItem({ ...newItem, image_urls: urls });
                                                         }}
+                                                        rows={3}
                                                     />
-                                                    {newItem.image_url && (
-                                                        <div className="mt-2 text-center">
-                                                            <img src={newItem.image_url} alt="URL Preview" className="max-h-40 inline-block rounded-lg shadow-sm border border-gray-200" onError={(e) => e.target.style.display = 'none'} />
+                                                    {newItem.image_urls?.length > 0 && (
+                                                        <div className="mt-2 flex flex-wrap gap-2 justify-center">
+                                                            {newItem.image_urls.map((url, i) => (
+                                                                <img key={i} src={url} alt="URL Preview" className="h-20 w-20 object-cover inline-block rounded-lg shadow-sm border border-gray-200" onError={(e) => e.target.style.display = 'none'} />
+                                                            ))}
                                                         </div>
                                                     )}
                                                 </div>
@@ -1000,14 +1010,14 @@ export default function ArtisanDashboard() {
                             </div>
                         )}
 
-                        <div className="bg-white border-2 border-black mb-20">
+                        <div className="bg-white border-2 border-black mb-20 overflow-x-auto">
                             {products.length === 0 ? (
                                 <div className="p-20 text-center text-gray-300 italic">
                                     <p className="text-3xl font-black uppercase tracking-tighter mb-4">Store empty.</p>
                                     <p className="text-[10px] font-bold tracking-widest uppercase">Begin your digital legacy today.</p>
                                 </div>
                             ) : (
-                                <table className="w-full text-left">
+                                <table className="min-w-full text-left">
                                     <thead>
                                         <tr className="bg-black text-[10px] font-black uppercase tracking-[0.2em] text-primary">
                                             <th className="px-8 py-5">Product Master</th>
@@ -1022,8 +1032,8 @@ export default function ArtisanDashboard() {
                                                 <td className="px-8 py-6">
                                                     <div className="flex items-center gap-6">
                                                         <div className="w-16 h-16 bg-gray-50 flex-shrink-0 border border-gray-100 grayscale hover:grayscale-0 transition-all duration-500 overflow-hidden">
-                                                            {p.image_url ? (
-                                                                <img src={p.image_url} alt={p.title} className="w-full h-full object-cover" />
+                                                            {p.image_url || p.image_urls?.[0] ? (
+                                                                <img src={p.image_url || p.image_urls?.[0]} alt={p.title} className="w-full h-full object-cover" />
                                                             ) : (
                                                                 <div className="w-full h-full flex items-center justify-center text-2xl font-black italic">!</div>
                                                             )}

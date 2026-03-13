@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const res = await axios.post('http://localhost:5000/auth/login', { email, password });
+            const res = await axios.post(`${import.meta.env.API_URL}/auth/login`, { email, password });
             localStorage.setItem('token', res.data.accessToken);
             localStorage.setItem('user', JSON.stringify(res.data.user));
             setUser(res.data.user);
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (email, password, role, phone_number, full_name) => {
         try {
-            await axios.post('http://localhost:5000/auth/register', { email, password, role, phone_number, full_name });
+            await axios.post(`${import.meta.env.API_URL}/auth/register`, { email, password, role, phone_number, full_name });
             toast.success('Registration successful! Please login.');
             return true;
         } catch (err) {
