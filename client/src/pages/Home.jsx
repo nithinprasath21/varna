@@ -15,7 +15,7 @@ export default function Home() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const res = await axios.get('http://localhost:5000/shop/products');
+                const res = await axios.get(`${import.meta.env.API_URL}/shop/products`);
                 setProducts(res.data);
             } catch (err) {
                 console.error(err);
@@ -86,7 +86,6 @@ export default function Home() {
 
     return (
         <div className="min-h-screen bg-white">
-            {/* Hero Section - High Fashion Branding */}
             <div className="relative h-screen bg-black overflow-hidden group">
                 <img
                     src="https://images.unsplash.com/photo-1596232074366-0428943f765e?ixlib=rb-4.0.3"
@@ -116,7 +115,6 @@ export default function Home() {
                     </motion.div>
                 </div>
 
-                {/* Scroll Indicator */}
                 <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
                     <span className="text-[10px] font-black text-white italic tracking-[0.5em] uppercase">SCROLL</span>
                     <div className="w-1 h-12 bg-white/20 relative overflow-hidden">
@@ -130,7 +128,6 @@ export default function Home() {
             </div>
 
             <div className="max-w-7xl mx-auto px-8 py-40">
-                {/* Intro Section */}
                 <div className="mb-40 max-w-3xl">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-primary mb-6 italic">OUR SHOPS</h3>
                     <p className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-black leading-tight border-b-8 border-primary pb-8 mb-12">
@@ -142,7 +139,6 @@ export default function Home() {
                     </p>
                 </div>
 
-                {/* Visual Categories Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-1 mb-40 border-2 border-black bg-black">
                     <GatewayCard
                         title="POTTERY SHOP"
@@ -176,10 +172,8 @@ export default function Home() {
                     </div>
                 </div>
 
-                {/* Shops */}
                 <ProductRow title="Store Pottery" items={potteryItems} />
 
-                {/* Mid Promo Banner */}
                 <motion.div
                     whileInView={{ x: [100, 0], opacity: [0, 1] }}
                     className="bg-black p-20 my-40 relative overflow-hidden"
@@ -201,7 +195,6 @@ export default function Home() {
 
                 <ProductRow title="Textile Archives" items={textileItems} />
 
-                {/* Newsletter / Custom Footer Look */}
                 <div className="mt-60 text-center space-y-12">
                     <div className="flex justify-center gap-4">
                         <Disc size={24} className="text-primary animate-spin-slow" />

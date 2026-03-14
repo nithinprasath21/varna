@@ -13,7 +13,7 @@ export default function VerifyProduct() {
     useEffect(() => {
         const verify = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/blockchain/verify/${hash}`);
+                const res = await axios.get(`${import.meta.env.API_URL}/blockchain/verify/${hash}`);
                 setRecord(res.data.record);
             } catch (err) {
                 setError('Invalid or fake product details.');

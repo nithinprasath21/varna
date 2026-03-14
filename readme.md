@@ -21,6 +21,11 @@ Varna is a premium, high-fidelity e-commerce ecosystem designed to empower grass
 - **Dynamic Acquisitions**: Real-time order tracking and historical log of authenticated purchases.
 - **Premium Interface**: Minimalist, high-contrast design system optimized for a luxury retail experience.
 
+### 4. AI Assistance (Powered by Groq)
+- **Cultural Notes Generation**: Automatically generates insightful cultural narratives for artisan products using advanced LLMs.
+- **Smart Improvements**: Suggests actionable feedback to craftsmen based on image analysis and product descriptions.
+- **High-Speed Inference**: Powered by Groq's low-latency API to deliver instant AI generation without blocking the primary Node thread.
+
 ---
 
 ## 🚀 Installation & Setup
@@ -75,29 +80,7 @@ cd varna
 
 ---
 
-### Step 3: AI Model Setup (Koboldcpp)
-
-Varna uses a completely offline AI model (Qwen 2.5 Coder 3B Instruct) for generating cultural notes and product suggestions securely.
-
-1. **Download Koboldcpp (AI Engine):**
-   - Head over to the [Koboldcpp GitHub Releases page](https://github.com/LostRuins/koboldcpp/releases).
-   - Download the latest executable (e.g., `koboldcpp.exe` for Windows).
-
-2. **Download the GGUF Model:**
-   - Visit the official Hugging Face repository: [Qwen2.5-Coder-3B-Instruct-GGUF](https://huggingface.co/Qwen/Qwen2.5-Coder-3B-Instruct-GGUF).
-   - Click over to the "Files and versions" tab.
-   - Download the model file named `qwen2.5-coder-3b-instruct-q4_k_m.gguf`.
-   - Place this file inside a `model/` directory in the root of your project (e.g., `varna/model/`). *Note: The `.gguf` file and `model/` directory are already listed in `.gitignore`.*
-
-3. **Launch the AI Instance:**
-   - Open `koboldcpp.exe`.
-   - Browse and select your downloaded `qwen2.5-coder-3b-instruct-q4_k_m.gguf` model.
-   - Adjust the port to **5001** so it properly hooks into Varna.
-   - Click "Launch". Wait for it to confirm the server is running at `http://localhost:5001`.
-
----
-
-### Step 4: Backend Configuration (Server)
+### Step 3: Backend Configuration (Server)
 
 1. Navigate to the server folder:
    ```bash
@@ -116,9 +99,13 @@ Varna uses a completely offline AI model (Qwen 2.5 Coder 3B Instruct) for genera
    - Then edit the `.env` file with your specific credentials:
      ```env
      PORT=5000
-     DATABASE_URL=postgresql://postgres:YOUR_DB_PASSWORD@localhost:5432/varna_db
+     DEV_DATABASE_URL=postgresql://postgres:YOUR_DB_PASSWORD@localhost:5432/varna_db
+     PROD_DATABASE_URL=postgresql://neondb_owner:...@...aws.neon.tech/neondb
      JWT_SECRET=your_secure_jwt_secret
      NODE_ENV=development
+     AI_API_URL=https://api.groq.com/openai/v1/chat/completions
+     AI_MODEL=openai/gpt-oss-120b
+     AI_API_KEY=your_api_key
      ```
 4. Start the server:
    ```bash
@@ -127,7 +114,7 @@ Varna uses a completely offline AI model (Qwen 2.5 Coder 3B Instruct) for genera
 
 ---
 
-### Step 5: Frontend Configuration (Client)
+### Step 4: Frontend Configuration (Client)
 
 1. Navigate to the client folder:
    ```bash
@@ -142,6 +129,28 @@ Varna uses a completely offline AI model (Qwen 2.5 Coder 3B Instruct) for genera
    npm run dev
    ```
 4. Access the app at `http://localhost:5173`
+
+---
+
+## ☁️ Deployment (Cloud)
+
+### Backend (Render)
+Varna is configured to seamlessly switch from a local setup to a production setup. When deploying the server folder on Render.com, configure the following Environment Variables in the Render Dashboard:
+
+- `NODE_ENV`: `production`
+- `PORT`: `5000` (or leave empty for Render to assign)
+- `JWT_SECRET`: `your_secure_randomly_generated_string`
+- `AI_API_URL`: `https://api.groq.com/openai/v1/chat/completions`
+- `AI_MODEL`: `openai/gpt-oss-120b`
+- `AI_API_KEY`: `your_api_key_for_ai`
+- `DATABASE_URL`: `your_neon_tech_postgres_connection_string`
+
+*Important for Neon DB*: If your Neon string contains `-pooler`, please **remove it** (e.g. `ep-long-bread.ap-southeast-1.aws` instead of `ep-long-bread-pooler.ap-southeast-1.aws`) to prevent PGBouncer cache issues.
+
+### Frontend (GitHub Pages / Vercel / Netlify)
+To connect your hosted frontend to your new Render backend, add the following environment variable to your deployment platform:
+
+- `API_URL`: `https://your-render-backend-url.onrender.com`
 
 ---
 

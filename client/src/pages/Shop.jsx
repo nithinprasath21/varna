@@ -24,7 +24,7 @@ export default function Shop() {
             if (search) params.append('search', search);
             if (category) params.append('category', category);
 
-            const res = await axios.get(`http://localhost:5000/shop/products?${params.toString()}`);
+            const res = await axios.get(`${import.meta.env.API_URL}/shop/products?${params.toString()}`);
             setProducts(res.data);
         } catch (err) {
             console.error(err);
@@ -58,7 +58,6 @@ export default function Shop() {
     return (
         <div className="bg-white min-h-screen py-16">
             <div className="max-w-7xl mx-auto px-8">
-                {/* Search / Filter Summary */}
                 <div className="mb-16 flex flex-col md:flex-row justify-between items-baseline gap-4 border-b-2 border-black pb-8">
                     <div>
                         <h1 className="text-5xl font-black italic uppercase tracking-tighter">
@@ -76,7 +75,6 @@ export default function Shop() {
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-16">
-                    {/* Sidebar Filters */}
                     <aside className="w-full md:w-48 flex-shrink-0">
                         <div className="sticky top-24 space-y-12">
                             <div>
@@ -112,7 +110,6 @@ export default function Shop() {
                         </div>
                     </aside>
 
-                    {/* Product Grid */}
                     <div className="flex-grow">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-8">
                             {products.map(item => {

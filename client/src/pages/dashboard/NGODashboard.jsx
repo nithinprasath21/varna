@@ -27,8 +27,8 @@ export default function NGODashboard() {
         try {
             const token = localStorage.getItem('token');
             const [artisansRes, statsRes] = await Promise.all([
-                axios.get('http://localhost:5000/ngo/artisans', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5000/ngo/stats', { headers: { Authorization: `Bearer ${token}` } })
+                axios.get(`${import.meta.env.API_URL}/ngo/artisans`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${import.meta.env.API_URL}/ngo/stats`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
 
             setArtisans(artisansRes.data);
@@ -45,7 +45,7 @@ export default function NGODashboard() {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/ngo/release-artisan', { artisanId }, {
+            await axios.post(`${import.meta.env.API_URL}/ngo/release-artisan`, { artisanId }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('Artisan successfully released to the wild.');
@@ -61,7 +61,7 @@ export default function NGODashboard() {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/ngo/link-artisan', { artisanEmail: linkEmail }, {
+            await axios.post(`${import.meta.env.API_URL}/ngo/link-artisan`, { artisanEmail: linkEmail }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('ARTISAN LINK ESTABLISHED');
@@ -78,7 +78,7 @@ export default function NGODashboard() {
         setStatsLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get(`http://localhost:5000/ngo/artisan/${artisan.id}/stats`, {
+            const res = await axios.get(`${import.meta.env.API_URL}/ngo/artisan/${artisan.id}/stats`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setArtisanStats(res.data);
@@ -202,7 +202,7 @@ export default function NGODashboard() {
                         <Users size={32} strokeWidth={3} /> ARTISAN LIST
                     </h2>
 
-                    <div className="bg-white border-4 border-black overflow-hidden">
+                    <div className="bg-white border-4 border-black overflow-x-auto">
                         <table className="min-w-full">
                             <thead>
                                 <tr className="bg-black text-white">
@@ -263,7 +263,6 @@ export default function NGODashboard() {
                 </div>
             </div>
 
-            {/* Link Artisan Modal */}
             <AnimatePresence>
                 {showLinkModal && (
                     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
@@ -298,11 +297,9 @@ export default function NGODashboard() {
                 )}
             </AnimatePresence>
 
-            {/* Analytics Modal */}
             <AnimatePresence>
                 {selectedArtisan && (
                     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-8 overflow-y-auto">
-                        {/* Close button fixed to viewport to ensure visibility */}
                         <button
                             onClick={() => setSelectedArtisan(null)}
                             className="fixed top-8 right-8 text-white hover:text-red-500 transition-colors z-[60] bg-black border-2 border-white p-2 rounded-full"
@@ -315,7 +312,7 @@ export default function NGODashboard() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 50 }}
                             className="bg-white w-full max-w-6xl border-4 border-primary min-h-[80vh] p-12 relative flex flex-col"
-                            onClick={(e) => e.stopPropagation()} // Prevent click from closing if we added overlay click handler
+                            onClick={(e) => e.stopPropagation()}
                         >
                             {statsLoading ? (
                                 <div className="flex-grow flex items-center justify-center flex-col gap-4">

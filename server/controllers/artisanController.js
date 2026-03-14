@@ -19,19 +19,22 @@ Product Description: ${description || 'Traditional craft'}
 Artisan Location: ${location}
 Artisan's Cultural Keywords/Notes: ${cultural_keywords || 'Heritage, tradition, craft'}`;
 
-        // Call local Koboldcpp API (OpenAI compatible)
-        const aiResponse = await axios.post('http://localhost:5001/v1/chat/completions', {
-            model: "qwen2.5-coder-3b-innstruct", // Default for koboldcpp
+        const aiResponse = await axios.post(process.env.AI_API_URL, {
+            model: process.env.AI_MODEL,
             messages: [
                 { role: "user", content: prompt }
             ],
             temperature: 0.7,
             max_tokens: 300
+        }, {
+            headers: {
+                'Authorization': `Bearer ${process.env.AI_API_KEY}`,
+                'Content-Type': 'application/json'
+            }
         });
 
         let generatedNote = aiResponse.data.choices[0].message.content.trim();
 
-        // RegEx scrubbing: Strip out any **Header:** or **Header** patterns just in case the AI ignores the prompt
         generatedNote = generatedNote.replace(/\*\*(.*?)\*\*(:?)\s*/g, '');
         generatedNote = generatedNote.replace(/\*\*/g, '');
 
@@ -39,7 +42,7 @@ Artisan's Cultural Keywords/Notes: ${cultural_keywords || 'Heritage, tradition, 
 
     } catch (err) {
         console.error("AI Generation Error:", err?.message || err);
-        res.status(500).json({ message: 'Failed to generate AI cultural note. Make sure koboldcpp is running on port 5001.' });
+        res.status(500).json({ message: 'Failed to generate AI cultural note. Make sure AI environment variables are set correctly.' });
     }
 };
 
@@ -48,7 +51,6 @@ const improveProduct = async (req, res) => {
         const { id } = req.params;
         const userId = req.userId;
 
-        // Verify artisan owns this product
         const artisanRes = await db.query('SELECT id FROM artisans WHERE user_id = $1', [userId]);
         if (artisanRes.rows.length === 0) return res.status(403).json({ message: 'Not an artisan' });
         const artisanId = artisanRes.rows[0].id;
@@ -68,11 +70,16 @@ Focus on product quality, pricing, features, or messaging based only on the comp
 Reviews:
 ${reviewsText}`;
 
-        const aiResponse = await axios.post('http://localhost:5001/v1/chat/completions', {
-            model: "qwen2.5-coder-3b-innstruct",
+        const aiResponse = await axios.post(process.env.AI_API_URL, {
+            model: process.env.AI_MODEL,
             messages: [{ role: "user", content: prompt }],
             temperature: 0.7,
             max_tokens: 350
+        }, {
+            headers: {
+                'Authorization': `Bearer ${process.env.AI_API_KEY}`,
+                'Content-Type': 'application/json'
+            }
         });
 
         const suggestions = aiResponse.data.choices[0].message.content.trim();
@@ -82,7 +89,7 @@ ${reviewsText}`;
 
     } catch (err) {
         console.error("AI Improvement Error:", err?.message || err);
-        res.status(500).json({ message: 'Failed to generate AI improvement suggestions. Make sure koboldcpp is running on port 5001.' });
+        res.status(500).json({ message: 'Failed to generate AI improvement suggestions. Make sure AI environment variables are set correctly.' });
     }
 };
 
@@ -107,7 +114,7 @@ const getDashboardStats = async (req, res) => {
         const salesTrendRes = await db.query(`
             SELECT 
                 DATE(o.created_at) as date,
-                SUM(oi.quantity * oi.price_at_purchase) as revenue
+                SUM(oi.quantity * oi.price_at_purchase)::int as revenue
             FROM order_items oi
             JOIN products p ON oi.product_id = p.id
             JOIN orders o ON oi.order_id = o.id
@@ -122,7 +129,7 @@ const getDashboardStats = async (req, res) => {
                 p.title,
                 p.id,
                 pm.media_url as image_url,
-                SUM(oi.quantity) as total_sold
+                SUM(oi.quantity)::int as total_sold
             FROM order_items oi
             JOIN products p ON oi.product_id = p.id
             LEFT JOIN product_media pm ON p.id = pm.product_id AND pm.is_primary = TRUE
@@ -150,8 +157,8 @@ const getDashboardStats = async (req, res) => {
         // 4. Market Reach (Orders Grouped By City)
         const marketReachRes = await db.query(`
             SELECT 
-                (o.shipping_address->>'city') as city,
-                COUNT(DISTINCT o.id) as order_count
+                (coalesce(o.shipping_address->>'city', 'Unknown')) as city,
+                COUNT(DISTINCT o.id)::int as order_count
             FROM order_items oi
             JOIN orders o ON oi.order_id = o.id
             JOIN products p ON oi.product_id = p.id
@@ -164,7 +171,7 @@ const getDashboardStats = async (req, res) => {
         const categoryProfitRes = await db.query(`
             SELECT 
                 p.category,
-                SUM(oi.quantity * oi.price_at_purchase) as total_revenue
+                SUM(oi.quantity * oi.price_at_purchase)::int as total_revenue
             FROM order_items oi
             JOIN products p ON oi.product_id = p.id
             WHERE p.artisan_id = $1
@@ -174,7 +181,7 @@ const getDashboardStats = async (req, res) => {
 
         // Total Revenue Calculation
         const revenueRes = await db.query(`
-            SELECT COALESCE(SUM(oi.quantity * oi.price_at_purchase), 0) as total_revenue
+            SELECT COALESCE(SUM(oi.quantity * oi.price_at_purchase), 0)::int as total_revenue
             FROM order_items oi
             JOIN products p ON oi.product_id = p.id
             JOIN orders o ON oi.order_id = o.id
@@ -223,7 +230,7 @@ const getDashboardStats = async (req, res) => {
 
 const addProduct = async (req, res) => {
     try {
-        const { title, description, base_price, sale_price, stock_qty, category, is_premium, image_url, cultural_keywords, ai_cultural_note } = req.body;
+        const { title, description, base_price, sale_price, stock_qty, category, is_premium, image_url, image_urls, cultural_keywords, ai_cultural_note } = req.body;
         const userId = req.userId;
 
         if (sale_price && Number(sale_price) > Number(base_price)) {
@@ -250,14 +257,21 @@ const addProduct = async (req, res) => {
 
         const productId = newProduct.rows[0].id;
 
-        if (image_url) {
+        if (image_urls && Array.isArray(image_urls) && image_urls.length > 0) {
+            for (let i = 0; i < image_urls.length; i++) {
+                await db.query(
+                    'INSERT INTO product_media (product_id, media_url, is_primary) VALUES ($1, $2, $3)',
+                    [productId, image_urls[i], i === 0]
+                );
+            }
+        } else if (image_url) {
             await db.query(
                 'INSERT INTO product_media (product_id, media_url, is_primary) VALUES ($1, $2, TRUE)',
                 [productId, image_url]
             );
         }
 
-        res.status(201).json({ ...newProduct.rows[0], image_url });
+        res.status(201).json({ ...newProduct.rows[0], image_url, image_urls });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error adding product' });
@@ -274,9 +288,10 @@ const getProducts = async (req, res) => {
         const artisanId = artisanRes.rows[0].id;
 
         const products = await db.query(`
-            SELECT p.*, pm.media_url as image_url 
+            SELECT p.*, 
+                   (SELECT media_url FROM product_media WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as image_url,
+                   (SELECT COALESCE(json_agg(media_url), '[]'::json) FROM product_media WHERE product_id = p.id) as image_urls
             FROM products p 
-            LEFT JOIN product_media pm ON p.id = pm.product_id AND pm.is_primary = TRUE
             WHERE p.artisan_id = $1 
             ORDER BY p.created_at DESC
         `, [artisanId]);
@@ -291,7 +306,7 @@ const getProducts = async (req, res) => {
 const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, description, base_price, sale_price, stock_qty, category, is_premium, image_url, cultural_keywords, ai_cultural_note } = req.body;
+        const { title, description, base_price, sale_price, stock_qty, category, is_premium, image_url, image_urls, cultural_keywords, ai_cultural_note } = req.body;
 
         if (sale_price && Number(sale_price) > Number(base_price)) {
             return res.status(400).json({ message: 'Sale price cannot be greater than base price (MRP)' });
@@ -308,7 +323,15 @@ const updateProduct = async (req, res) => {
             return res.status(404).json({ message: 'Product not found' });
         }
 
-        if (image_url) {
+        if (image_urls && Array.isArray(image_urls) && image_urls.length > 0) {
+            await db.query('DELETE FROM product_media WHERE product_id = $1', [id]);
+            for (let i = 0; i < image_urls.length; i++) {
+                await db.query(
+                    'INSERT INTO product_media (product_id, media_url, is_primary) VALUES ($1, $2, $3)',
+                    [id, image_urls[i], i === 0]
+                );
+            }
+        } else if (image_url) {
             // Check if primary image exists
             const existingMedia = await db.query('SELECT id FROM product_media WHERE product_id = $1 AND is_primary = TRUE', [id]);
             if (existingMedia.rows.length > 0) {

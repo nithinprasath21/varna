@@ -20,7 +20,6 @@ export const CartProvider = ({ children }) => {
     }, [cartItems]);
 
     const addToCart = (product) => {
-        // Check existence using current state snapshot (good enough for UI actions)
         const existing = cartItems.find(item => item.id === product.id);
 
         if (existing) {

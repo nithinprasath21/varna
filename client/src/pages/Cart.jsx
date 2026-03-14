@@ -11,7 +11,6 @@ export default function Cart() {
     const navigate = useNavigate();
     const [isCheckout, setIsCheckout] = useState(false);
 
-    // Checkout State
     const [addresses, setLogistics] = useState([]);
     const [selectedLogistics, setSelectedLogistics] = useState(null);
     const [showAddLogistics, setShowAddLogistics] = useState(false);
@@ -21,7 +20,6 @@ export default function Cart() {
     const [discountAmount, setDiscountAmount] = useState(0);
     const [validatedCoupon, setValidatedCoupon] = useState(null);
 
-    // Payment State
     const [paymentMode, setPaymentMode] = useState('UPI');
     const [paymentDetails, setPaymentDetails] = useState({
         upiId: '',
@@ -34,7 +32,7 @@ export default function Cart() {
     const fetchLogistics = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5000/auth/profile', {
+            const res = await axios.get(`${import.meta.env.API_URL}/auth/profile`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setLogistics(res.data.addresses);
@@ -60,7 +58,7 @@ export default function Cart() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:5000/auth/address', { ...newLogistics, is_default: addresses.length === 0 }, {
+            const res = await axios.post(`${import.meta.env.API_URL}/auth/address`, { ...newLogistics, is_default: addresses.length === 0 }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setLogistics([...addresses, res.data]);
@@ -78,7 +76,7 @@ export default function Cart() {
         try {
             const sellingPriceTotal = cartItems.reduce((acc, item) => acc + ((item.sale_price || item.base_price) * item.qty), 0);
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:5000/coupons/validate', {
+            const res = await axios.post(`${import.meta.env.API_URL}/coupons/validate`, {
                 code: couponCode.toUpperCase()
             }, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -122,7 +120,7 @@ export default function Cart() {
             const token = localStorage.getItem('token');
             const finalAmount = Math.max(0, sellingPriceTotal - discountAmount);
 
-            await axios.post('http://localhost:5000/orders', {
+            await axios.post(`${import.meta.env.API_URL}/orders`, {
                 items: cartItems,
                 address_id: selectedLogistics,
                 payment_mode: paymentMode,
@@ -170,9 +168,7 @@ export default function Cart() {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
-                        {/* Left Column: Logistics & Payment */}
                         <div className="lg:col-span-7 space-y-16">
-                            {/* Logistics Section */}
                             <section>
                                 <div className="flex justify-between items-baseline mb-8">
                                     <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 italic">I. DELIVERY LOGISTICS</h3>
@@ -214,7 +210,6 @@ export default function Cart() {
                                 </div>
                             </section>
 
-                            {/* Payment Section */}
                             <section>
                                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 italic mb-8">II. PAYMENT METHOD</h3>
                                 <div className="space-y-4">
@@ -250,7 +245,6 @@ export default function Cart() {
                             </section>
                         </div>
 
-                        {/* Right Column: Checkout Summary */}
                         <div className="lg:col-span-5 h-fit">
                             <div className="border-[6px] border-black p-10 space-y-8 sticky top-24">
                                 <h3 className="text-2xl font-black italic uppercase tracking-tighter border-b-2 border-black pb-4">Order Summary</h3>
