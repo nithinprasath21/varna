@@ -2,13 +2,17 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  const cleanApiUrl = (env.API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+
   return {
     base: mode === 'production' ? '/varna/' : '/',
     logLevel: 'error',
-    envPrefix: ['VITE_', 'API_'], // Allows generic API_URL to be bundled
+    envPrefix: ['VITE_', 'API_'],
+    define: {
+      'import.meta.env.API_URL': JSON.stringify(cleanApiUrl)
+    },
     plugins: [
       react(),
       VitePWA({
@@ -36,7 +40,8 @@ export default defineConfig(({ mode }) => {
         workbox: {
           runtimeCaching: [
             {
-              urlPattern: ({ url }) => url.origin === (env.API_URL || 'http://localhost:5000'),
+              // Fix: Convert to Regex string so 'env' variable isn't executed inside the browser's Service Worker isolating environment
+              urlPattern: new RegExp('^' + cleanApiUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
               handler: 'NetworkFirst',
               options: {
                 cacheName: 'api-cache',
