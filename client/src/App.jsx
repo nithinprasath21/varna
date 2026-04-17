@@ -11,6 +11,7 @@ const NGODashboard = lazy(() => import('./pages/dashboard/NGODashboard'));
 const Home = lazy(() => import('./pages/Home'));
 const Shop = lazy(() => import('./pages/Shop'));
 const Cart = lazy(() => import('./pages/Cart'));
+const About = lazy(() => import('./pages/About'));
 const VerifyProduct = lazy(() => import('./pages/VerifyProduct'));
 const Profile = lazy(() => import('./pages/Profile'));
 const ProductDetails = lazy(() => import('./pages/ProductDetails'));
@@ -67,6 +68,7 @@ function App() {
               <Route element={<Layout />}>
                 <Route path="/" element={<RootRedirect />} />
                 <Route path="/shop" element={<Shop />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/verify/:hash" element={<VerifyProduct />} />
