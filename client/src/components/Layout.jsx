@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import OfflineBanner from './OfflineBanner';
 
@@ -22,28 +22,27 @@ export default function Layout() {
                     <div className="space-y-6">
                         <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-primary italic">I. ABOUT US</h4>
                         <ul className="space-y-4 text-xs font-black uppercase tracking-widest italic text-gray-500">
-                            <li className="hover:text-primary transition-colors cursor-pointer">Our Story</li>
-                            <li className="hover:text-primary transition-colors cursor-pointer">Our Artisans</li>
-                            <li className="hover:text-primary transition-colors cursor-pointer">How We Verify</li>
-                            <li className="hover:text-primary transition-colors cursor-pointer">Sustainability</li>
+                            <li><Link to="/about" className="hover:text-primary transition-colors block">Our Story</Link></li>
+                            <li><Link to="/shop" className="hover:text-primary transition-colors block">Shop Artisans</Link></li>
+                            <li><Link to="/about" className="hover:text-primary transition-colors block">Ledger Verification</Link></li>
                         </ul>
                     </div>
 
                     <div className="space-y-6">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-primary italic">II. SHOP</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-primary italic">II. PARTNERSHIPS</h4>
                         <ul className="space-y-4 text-xs font-black uppercase tracking-widest italic text-gray-500">
-                            <li className="hover:text-primary transition-colors cursor-pointer">Sell Products</li>
-                            <li className="hover:text-primary transition-colors cursor-pointer">Partner NGOs</li>
-                            <li className="hover:text-primary transition-colors cursor-pointer">Logistics</li>
+                            <li><Link to="/auth/register" className="hover:text-primary transition-colors block">Sell Products</Link></li>
+                            <li><Link to="/auth/register" className="hover:text-primary transition-colors block">NGO Onboarding</Link></li>
+                            <li><Link to="/auth/login" className="hover:text-primary transition-colors block">Portal Login</Link></li>
                         </ul>
                     </div>
 
                     <div className="space-y-6">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-primary italic">III. CUSTOMER SERVICE</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-primary italic">III. YOUR ACCOUNT</h4>
                         <ul className="space-y-4 text-xs font-black uppercase tracking-widest italic text-gray-500">
-                            <li className="hover:text-primary transition-colors cursor-pointer">Help Center</li>
-                            <li className="hover:text-primary transition-colors cursor-pointer">Returns & Refunds</li>
-                            <li className="hover:text-primary transition-colors cursor-pointer">Privacy Policy</li>
+                            <li><Link to="/profile" className="hover:text-primary transition-colors block">User Profile</Link></li>
+                            <li><Link to="/orders" className="hover:text-primary transition-colors block">Track Orders</Link></li>
+                            <li><Link to="/cart" className="hover:text-primary transition-colors block">Shopping Cart</Link></li>
                         </ul>
                     </div>
                 </div>

@@ -88,7 +88,7 @@ export default function Home() {
         <div className="min-h-screen bg-white">
             <div className="relative h-screen bg-black overflow-hidden group">
                 <img
-                    src="https://images.unsplash.com/photo-1596232074366-0428943f765e?ixlib=rb-4.0.3"
+                    src="https://www.poojn.in/wp-content/uploads/2025/06/Keralas-Cultural-Heritage-A-Festival-Journey.jpeg.jpg"
                     alt="Hero"
                     className="w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 transition-all duration-[2s]"
                 />
@@ -98,7 +98,7 @@ export default function Home() {
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 1 }}
                     >
-                        <h1 className="text-white text-7xl md:text-[12rem] font-black italic leading-[0.8] tracking-tighter mb-8">
+                        <h1 className="text-white text-7xl md:text-9xl font-black italic leading-[0.8] tracking-tighter mb-8 mt-12">
                             VARNA<br /><span className="text-primary not-italic">STORE.</span>
                         </h1>
                         <p className="text-white text-[10px] md:text-sm tracking-[0.6em] uppercase mb-12 max-w-2xl mx-auto italic font-black">
@@ -127,19 +127,51 @@ export default function Home() {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-8 py-40">
-                <div className="mb-40 max-w-3xl">
+            <div className="max-w-7xl mx-auto px-8 py-12 md:py-20">
+                <div className="mb-16 md:mb-24 bg-gray-50 border-2 border-black">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-center">
+                        <div className="relative aspect-video overflow-hidden border-b-2 md:border-b-0 md:border-r-2 border-black bg-black">
+                            <video 
+                                autoPlay 
+                                loop 
+                                muted 
+                                playsInline
+                                className="w-full h-full object-cover"
+                                src="https://img.indiahandmade.com/wysiwyg/about.webm" 
+                            />
+                        </div>
+                        <div className="p-10 md:p-16 space-y-8 bg-white h-full flex flex-col justify-center">
+                            <div>
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-primary mb-4 italic">ABOUT VARNA</h3>
+                                <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-black leading-tight">
+                                    PRESERVING <br/> HERITAGE.
+                                </h2>
+                            </div>
+                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest leading-loose">
+                                We are on a mission to bring authentic, handcrafted products directly from master artisans to the global market. 
+                                By eliminating intermediaries, we ensure fair compensation for their craft and preserve the rich cultural heritage of rural India for generations to come.
+                            </p>
+                            <div>
+                                <button onClick={() => navigate('/shop')} className="text-xs font-black uppercase tracking-[0.3em] bg-black text-white px-8 py-4 hover:bg-primary hover:text-black transition-colors italic border-2 border-black">
+                                    SHOP HANDCRAFTED
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mb-12 md:mb-20 max-w-3xl">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-primary mb-6 italic">OUR SHOPS</h3>
-                    <p className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-black leading-tight border-b-8 border-primary pb-8 mb-12">
+                    <p className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-black leading-tight border-b-8 border-primary pb-8 mb-12">
                         DISCOVER BEAUTIFUL HANDCRAFTED PRODUCTS.
                     </p>
-                    <p className="text-lg font-black uppercase tracking-widest text-gray-400 italic leading-relaxed">
+                    <p className="text-sm md:text-base font-black uppercase tracking-widest text-gray-400 italic leading-relaxed">
                         DIRECT LOGIN TO MASTER ARTISANS. REMOVING INTERMEDIARIES. <br />
                         ESTABLISHING THE GOLD STANDARD OF AUTHENTICITY.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-1 mb-40 border-2 border-black bg-black">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-1 mb-16 md:mb-24 border-2 border-black bg-black">
                     <GatewayCard
                         title="POTTERY SHOP"
                         image="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=800"
@@ -174,47 +206,53 @@ export default function Home() {
 
                 <ProductRow title="Store Pottery" items={potteryItems} />
 
-                <motion.div
-                    whileInView={{ x: [100, 0], opacity: [0, 1] }}
-                    className="bg-black p-20 my-40 relative overflow-hidden"
-                >
-                    <div className="absolute top-0 right-0 w-full h-full opacity-20 flex items-center justify-center pointer-events-none">
-                        <span className="text-[30rem] font-black italic tracking-tighter text-white select-none">VARNA</span>
-                    </div>
-
-                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
-                        <div className="text-white max-w-xl">
-                            <h2 className="text-6xl md:text-7xl font-black italic tracking-tighter mb-4 leading-none lowercase italic">support <span className="text-primary NOT-ITALIC not-italic uppercase">living</span> legends.</h2>
-                            <p className="text-xs font-black tracking-[0.4em] uppercase text-gray-400 italic">100% OF PROFITS REACH THE CREATORS IN REAL-TIME.</p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 my-16 md:my-24">
+                    <motion.div whileHover={{ y: -5 }} className="bg-gray-50 border-2 border-black p-8 md:p-12 flex flex-col justify-between group overflow-hidden">
+                        <div className="mb-12">
+                            <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-primary mb-4 italic">THE ARTISAN PORTAL</h3>
+                            <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-black leading-tight">
+                                EMPOWERING <br/> CREATORS.
+                            </h2>
+                            <p className="mt-6 text-xs font-bold text-gray-500 uppercase tracking-widest leading-loose">
+                                Our dedicated dashboard gives authenticated artisans full control over their inventory, pricing, and global logistics, ensuring they are the masters of their own commerce.
+                            </p>
+                            <button onClick={() => navigate('/auth/login')} className="mt-8 text-[10px] font-black uppercase tracking-[0.3em] bg-transparent text-black px-6 py-4 hover:bg-black hover:text-white transition-colors italic border-2 border-black inline-block w-max">
+                                PORTAL LOGIN
+                            </button>
                         </div>
-                        <button onClick={() => navigate('/shop')} className="bg-primary text-black px-16 py-6 text-xs font-black uppercase tracking-[0.4em] hover:bg-white transition-all italic shadow-[10px_10px_0px_0px_rgba(255,255,255,1)]">
-                            OUR IMPACT
-                        </button>
-                    </div>
-                </motion.div>
+                        <div className="relative aspect-[4/3] border-2 border-black overflow-hidden bg-black mt-auto">
+                            <img src="https://images.pexels.com/photos/26762715/pexels-photo-26762715.jpeg" alt="Weaving" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105" />
+                        </div>
+                    </motion.div>
+
+                    <motion.div whileHover={{ y: -5 }} className="bg-black text-white p-8 md:p-12 flex flex-col justify-between group overflow-hidden border-2 border-black">
+                        <div className="relative aspect-[4/3] border-2 border-white overflow-hidden bg-white mb-12">
+                            <img src="https://img.freepik.com/premium-vector/gold-brown-label-that-says-artisan-products_1090394-157916.jpg?semt=ais_hybrid&w=740&q=80" alt="Pottery Hands" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105" />
+                        </div>
+                        <div className="mt-auto">
+                            <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-primary mb-4 italic">VERIFIED BY LEDGER</h3>
+                            <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter leading-tight">
+                                ABSOLUTE <br/> AUTHENTICITY.
+                            </h2>
+                            <p className="mt-6 text-xs font-bold text-gray-400 uppercase tracking-widest leading-loose">
+                                Every artifact purchased comes with an immutable, auditable certificate of authenticity. Track its geographical origin, cultural significance, and the very hands that crafted it.
+                            </p>
+                        </div>
+                    </motion.div>
+                </div>
 
                 <ProductRow title="Textile Archives" items={textileItems} />
 
-                <div className="mt-60 text-center space-y-12">
-                    <div className="flex justify-center gap-4">
-                        <Disc size={24} className="text-primary animate-spin-slow" />
-                        <Disc size={24} className="text-primary animate-spin-slow" />
-                        <Disc size={24} className="text-primary animate-spin-slow" />
-                    </div>
-                    <div>
-                        <h3 className="text-4xl font-black italic uppercase tracking-tighter mb-4 text-black italic leading-none">NEWSLETTER</h3>
-                        <p className="text-[10px] text-gray-400 max-w-md mx-auto tracking-[0.5em] uppercase leading-relaxed font-black italic">
-                            WEEKLY UPDATES FROM OUR ARTISANS. <br /> NO SPAM.
+                <div onClick={() => navigate('/about')} className="my-16 md:my-24 bg-primary p-12 md:p-20 text-center border-4 border-black relative overflow-hidden group hover:bg-black transition-colors duration-1000 cursor-pointer">
+                    <div className="relative z-10">
+                        <h3 className="text-xl md:text-3xl font-black italic uppercase tracking-tighter text-black group-hover:text-primary mb-6 transition-colors duration-1000">
+                            WHAT WE DO AT VARNA.
+                        </h3>
+                        <p className="text-[10px] md:text-xs font-bold text-black/80 group-hover:text-gray-400 uppercase tracking-widest max-w-3xl mx-auto leading-loose transition-colors duration-1000">
+                            LEDGER VERIFICATION • AI CULTURAL NOTES • DIRECT FULFILLMENT • NGO ONBOARDING • FAIR COMPENSATION
                         </p>
-                    </div>
-                    <div className="flex max-w-lg mx-auto overflow-hidden border-b-4 border-black pb-4 hover:border-primary transition-colors">
-                        <input
-                            type="text"
-                            placeholder="Email Address"
-                            className="flex-grow bg-transparent border-none focus:ring-0 text-lg font-black uppercase tracking-widest placeholder:text-gray-100 italic"
-                        />
-                        <button className="text-lg font-black uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-2 italic">
-                            SUBSCRIBE <ArrowRight strokeWidth={4} />
+                        <button className="mt-10 text-[10px] font-black uppercase tracking-[0.3em] bg-black group-hover:bg-primary text-white group-hover:text-black px-10 py-5 transition-colors duration-1000 italic border-2 border-black">
+                            EXPLORE OUR MISSION
                         </button>
                     </div>
                 </div>
