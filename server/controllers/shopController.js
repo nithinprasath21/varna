@@ -129,4 +129,35 @@ const getRecommendations = async (req, res) => {
     }
 };
 
-module.exports = { getAllProducts, getProductById, getRecommendations };
+const getAllArtisans = async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                a.*,
+                n.ngo_name,
+                COALESCE(
+                    (SELECT json_agg(p.title) FROM products p WHERE p.artisan_id = a.id),
+                    '[]'::json
+                ) as products,
+                (SELECT MIN(sale_price) FROM products p WHERE p.artisan_id = a.id) as min_price,
+                (SELECT MAX(sale_price) FROM products p WHERE p.artisan_id = a.id) as max_price,
+                (SELECT pm.media_url 
+                 FROM products p 
+                 JOIN product_media pm ON p.id = pm.product_id 
+                 WHERE p.artisan_id = a.id AND pm.is_primary = TRUE 
+                 LIMIT 1) as image_url,
+                u.email
+            FROM artisans a
+            LEFT JOIN ngos n ON a.ngo_id = n.id
+            LEFT JOIN users u ON a.user_id = u.id
+            ORDER BY a.created_at DESC
+        `;
+        const result = await db.query(query);
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error fetching artisans' });
+    }
+};
+
+module.exports = { getAllProducts, getProductById, getRecommendations, getAllArtisans };

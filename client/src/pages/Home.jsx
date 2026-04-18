@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronRight, Star, Disc } from 'lucide-react';
+import ArtisansCarousel from '../components/ArtisansCarousel';
 
 export default function Home() {
     const [products, setProducts] = useState([]);
@@ -203,6 +204,8 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
+
+                <ArtisansCarousel />
 
                 <ProductRow title="Store Pottery" items={potteryItems} />
 
